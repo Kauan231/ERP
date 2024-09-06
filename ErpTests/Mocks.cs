@@ -1,9 +1,4 @@
 ﻿using ERP.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ErpTests
 {
@@ -13,7 +8,7 @@ namespace ErpTests
         {
             User user = new User();
             user.Id = Guid.NewGuid().ToString();
-            user.Name = Guid.NewGuid().ToString();
+            user.UserName = Guid.NewGuid().ToString();
             return user;
         }
 
@@ -33,6 +28,7 @@ namespace ErpTests
             Inventory inventory = new Inventory();
             inventory.Id = Guid.NewGuid().ToString();
             inventory.userId = userID;
+            inventory.Name = Guid.NewGuid().ToString();
             return inventory;
         }
     }

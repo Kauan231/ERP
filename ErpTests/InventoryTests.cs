@@ -52,6 +52,7 @@ namespace ErpTests
 
             CreateInventoryDto createInventoryDto = new CreateInventoryDto();
             createInventoryDto.userId = user.Id;
+            createInventoryDto.Name = Guid.NewGuid().ToString();
 
             //Act & Assert
             Inventory createdInventory = _inventoryRepository.Create(createInventoryDto);
@@ -73,6 +74,7 @@ namespace ErpTests
 
             CreateInventoryDto createInventoryDto = new CreateInventoryDto();
             createInventoryDto.userId = user.Id;
+            createInventoryDto.Name = Guid.NewGuid().ToString();
 
             Inventory createdInventory = _inventoryRepository.Create(createInventoryDto);
             _inventoryRepository.SaveChanges();
