@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ERP.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ERP.Data
 {
-    public class ErpContext : DbContext
+    public class ErpContext : IdentityDbContext<User>
     {
         public ErpContext(DbContextOptions<ErpContext> opts)
         : base(opts)

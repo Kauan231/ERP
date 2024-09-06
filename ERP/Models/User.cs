@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace ERP.Models
 {
-    public class User
+    public class User : IdentityUser
     {
-        [Key]
-        [Required]
-        public string Id { get; set; }
-        public string Name { get; set; }
         public virtual ICollection<Inventory>? Inventories { get; set; }
+
+        public User() : base() { }
     }
 }
