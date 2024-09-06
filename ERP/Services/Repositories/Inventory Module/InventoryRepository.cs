@@ -3,8 +3,6 @@ using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlTypes;
-using System.Linq;
 
 namespace ERP.Repositories
 {
