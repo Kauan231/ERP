@@ -2,6 +2,7 @@
 using ERP.Repositories;
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,6 +20,7 @@ namespace ERP.Controllers
         }
 
         // GET <InventoryController>/5
+        [Authorize]
         [HttpGet("{id}")]
         public ReadInventoryDto Get(string id)
         {
@@ -27,16 +29,22 @@ namespace ERP.Controllers
             return readInventoryDto;
         }
 
+
         // POST <InventoryController>
+        [Authorize]
         [HttpPost]
-        public Inventory Post([FromBody] CreateInventoryDto dto)
+        public Inventory Post(string InventoryName)
         {
-            Inventory inventory = _inventoryRepository.Create(dto);
+            CreateInventoryDto createdInventoryDto = new CreateInventoryDto();
+            createdInventoryDto.userId = this.User.Claims.First(i => i.Type == "id").Value;
+            createdInventoryDto.Name = InventoryName;
+            Inventory inventory = _inventoryRepository.Create(createdInventoryDto);
             _inventoryRepository.SaveChanges();
             return inventory;
         }
 
         // DELETE <InventoryController>/5
+        [Authorize]
         [HttpDelete("{id}")]
         public void Delete(string id)
         {
