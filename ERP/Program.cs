@@ -1,15 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using ERP.Data;
 using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
+using System.Text;
 using System.Text.Json.Serialization;
 using ERP.Repositories;
 using ERP.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ERP.Services.Authentication;
-using Microsoft.OpenApi.Models;
+using ERP.Data;
+using ERP.Services.Roles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,12 +34,14 @@ builder.Services.AddControllers()
 
 
 builder.Services.AddScoped<UserService>(); 
-builder.Services.AddScoped<TokenService>(); 
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<IRolesService, RolesService>();
 
 // REPOSITORIES
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
+
 
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
@@ -71,11 +74,10 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-
 builder.Services
     .AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ErpContext>()
-.AddDefaultTokenProviders();
+    .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -97,6 +99,12 @@ builder.Services.AddAuthentication(options =>
 // Services ----------------------------------------------------------------------------
 
 var app = builder.Build();
+
+//Insert roles in database
+var scope = app.Services.CreateScope();
+IRolesService service = scope.ServiceProvider.GetService<IRolesService>();
+service.Startup();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
