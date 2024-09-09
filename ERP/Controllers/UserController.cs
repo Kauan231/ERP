@@ -49,6 +49,7 @@ namespace ERP.Controllers
             return Ok("User removed");
         }
 
+        // Get "My Roles" 
         [HttpGet]
         [Authorize]
         [Route("Roles")]
@@ -58,7 +59,8 @@ namespace ERP.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(roles);
         }
-        
+
+        // Get "My Inventories"
         [HttpGet("Inventories")]
         [Authorize]
         public List<Inventory> GetAllInventories()
@@ -67,7 +69,5 @@ namespace ERP.Controllers
             _inventoryRepository.SaveChanges();
             return readInventoryDto;
         }
-
-
     }
 }

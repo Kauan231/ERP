@@ -3,8 +3,6 @@ using ERP.Repositories;
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace ERP.Controllers
 {
     [Route("[controller]")]
@@ -18,7 +16,7 @@ namespace ERP.Controllers
             _shipmentRepository = shipmentRepository;
         }
 
-        // GET <InventoryController>/5
+        // GET <ShipmentController>/5
         [HttpGet("{id}")]
         public ReadShipmentDto Get(string id)
         {
@@ -27,7 +25,7 @@ namespace ERP.Controllers
             return readShipmentDto;
         }
 
-        // POST <InventoryController>/Receive
+        // POST <ShipmentController>/Receive
         [HttpPost("Receive")]
         public Shipment Receive([FromBody] CreateShipmentDto dto)
         {
@@ -36,6 +34,7 @@ namespace ERP.Controllers
             return shipment;
         }
 
+        // POST <ShipmentController>/Send
         [HttpPost("Send")]
         public Shipment Send([FromBody] CreateShipmentDto dto)
         {
@@ -44,6 +43,7 @@ namespace ERP.Controllers
             return shipment;
         }
 
+        // POST <ShipmentController>/Transfer
         [HttpPost("Transfer")]
         public Shipment Transfer([FromBody] TransferDto dto)
         {
@@ -52,7 +52,7 @@ namespace ERP.Controllers
             return shipment;
         }
 
-        // DELETE <InventoryController>/5
+        // DELETE <ShipmentController>/5
         [HttpDelete("{id}")]
         public void Delete(string id)
         {

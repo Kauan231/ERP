@@ -1,13 +1,7 @@
-﻿using ERP.Data.Dtos;
-using ERP.Repositories;
-using ERP.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ERP.Services.Roles;
-using Microsoft.AspNetCore.Rewrite;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ERP.Controllers
 {

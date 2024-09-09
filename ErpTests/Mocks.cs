@@ -7,7 +7,6 @@ namespace ErpTests
         public static User TestUser()
         {
             User user = new User();
-            user.Id = Guid.NewGuid().ToString();
             user.UserName = Guid.NewGuid().ToString();
             return user;
         }
