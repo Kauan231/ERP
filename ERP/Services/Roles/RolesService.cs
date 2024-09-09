@@ -10,19 +10,20 @@ namespace ERP.Services.Roles
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<User> _userManager;
 
-        public List<string> Roles = new List<string>
-        {
-            "admin", "hr"
-        };
-
         public RolesService(RoleManager<IdentityRole> roleManager, UserManager<User> userManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
         }
-
+        
+        // Add roles to the database
         public async void Startup()
         {
+            List<string> Roles = new List<string>
+            {
+                "admin", "hr"
+            };
+
             foreach(string role in Roles) { 
                 try
                 {
