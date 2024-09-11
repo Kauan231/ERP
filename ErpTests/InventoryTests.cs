@@ -6,6 +6,8 @@ using ERP.Models;
 using ERP.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using ERP.Data.Dtos.Domain;
+using ERP.Models.Domain;
 
 namespace ErpTests
 {
@@ -48,10 +50,14 @@ namespace ErpTests
             //Arrange
             User user = Mocks.TestUser();
             _context.Users.Add(user);
-            _context.SaveChanges(); 
+            _context.SaveChanges();
+
+            Business business = Mocks.TestBusiness(user.Id);
+            _context.Businesses.Add(business);
+            _context.SaveChanges();
 
             CreateInventoryDto createInventoryDto = new CreateInventoryDto();
-            createInventoryDto.userId = user.Id;
+            createInventoryDto.businessId = business.Id;
             createInventoryDto.Name = Guid.NewGuid().ToString();
 
             //Act & Assert
@@ -72,8 +78,12 @@ namespace ErpTests
             _context.Users.Add(user);
             _context.SaveChanges();
 
+            Business business = Mocks.TestBusiness(user.Id);
+            _context.Businesses.Add(business);
+            _context.SaveChanges();
+
             CreateInventoryDto createInventoryDto = new CreateInventoryDto();
-            createInventoryDto.userId = user.Id;
+            createInventoryDto.businessId = business.Id;
             createInventoryDto.Name = Guid.NewGuid().ToString();
 
             Inventory createdInventory = _inventoryRepository.Create(createInventoryDto);

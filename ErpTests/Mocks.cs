@@ -1,4 +1,5 @@
 ﻿using ERP.Models;
+using ERP.Models.Domain;
 
 namespace ErpTests
 {
@@ -9,6 +10,15 @@ namespace ErpTests
             User user = new User();
             user.UserName = Guid.NewGuid().ToString();
             return user;
+        }
+
+        public static Business TestBusiness(string userID)
+        {
+            Business business = new Business();
+            business.Id = Guid.NewGuid().ToString();
+            business.userId = userID;
+            business.Name = Guid.NewGuid().ToString();
+            return business;
         }
 
         public static Product TestProduct(string InventoryID, int initialAmount)
@@ -22,11 +32,11 @@ namespace ErpTests
             return product;
         }
 
-        public static Inventory TestInventory(string userID)
+        public static Inventory TestInventory(string businessID)
         {
             Inventory inventory = new Inventory();
             inventory.Id = Guid.NewGuid().ToString();
-            inventory.userId = userID;
+            inventory.businessId = businessID;
             inventory.Name = Guid.NewGuid().ToString();
             return inventory;
         }

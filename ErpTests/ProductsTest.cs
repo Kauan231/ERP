@@ -6,6 +6,7 @@ using ERP.Models;
 using ERP.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using ERP.Models.Domain;
 
 namespace ErpTests
 {
@@ -47,11 +48,14 @@ namespace ErpTests
         {
             //Arrange
             User user = Mocks.TestUser();
-
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            Inventory inventory = Mocks.TestInventory(user.Id);
+            Business business = Mocks.TestBusiness(user.Id);
+            _context.Businesses.Add(business);
+            _context.SaveChanges();
+
+            Inventory inventory = Mocks.TestInventory(business.Id);
             _context.Inventories.Add(inventory);
             _context.SaveChanges();
 
