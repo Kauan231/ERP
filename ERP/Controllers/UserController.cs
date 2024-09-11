@@ -1,10 +1,11 @@
-﻿using ERP.Data.Dtos;
-using ERP.Repositories;
-using ERP.Models;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ERP.Services.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using ERP.Models.Domain;
+using ERP.Data.Dtos;
+using ERP.Repositories;
+using ERP.Models;
 
 namespace ERP.Controllers
 {
@@ -12,17 +13,18 @@ namespace ERP.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IInventoryRepository _inventoryRepository;
+        private readonly IBusinessRepository _businessRepository;
         private readonly UserManager<User> _userManager;
         private UserService _UserService;
         private TokenService _tokenService;
 
-        public UserController(IInventoryRepository inventoryRepository, UserService userService, TokenService tokenService, UserManager<User> userManager)
+        public UserController(IInventoryRepository inventoryRepository, UserService userService, 
+            TokenService tokenService, UserManager<User> userManager, IBusinessRepository businessRepository)
         {
-            _inventoryRepository = inventoryRepository;
             _UserService = userService;
             _tokenService = tokenService;
             _userManager = userManager;
+            _businessRepository = businessRepository;
         }
 
         [HttpPost("Register")]
@@ -49,6 +51,16 @@ namespace ERP.Controllers
             return Ok("User removed");
         }
 
+        // Get "My Profile" 
+        [HttpGet]
+        [Authorize]
+        [Route("Profile")]
+        public async Task<User> GetUser()
+        {
+            User user = await _userManager.FindByIdAsync(this.User.Claims.First(i => i.Type == "id").Value);  
+            return user;
+        }
+
         // Get "My Roles" 
         [HttpGet]
         [Authorize]
@@ -60,14 +72,13 @@ namespace ERP.Controllers
             return Ok(roles);
         }
 
-        // Get "My Inventories"
-        [HttpGet("Inventories")]
+        // Get "My Businesses"
+        [HttpGet("Businesses")]
         [Authorize]
-        public List<Inventory> GetAllInventories()
+        public List<Business> GetAllBusinesses()
         {
-            List<Inventory> readInventoryDto = _inventoryRepository.ReadAllUserInventories(this.User.Claims.First(i => i.Type == "id").Value);
-            _inventoryRepository.SaveChanges();
-            return readInventoryDto;
+            List<Business> readBusinessDto = _businessRepository.ReadAllUserBusinesses(this.User.Claims.First(i => i.Type == "id").Value);
+            return readBusinessDto;
         }
     }
 }

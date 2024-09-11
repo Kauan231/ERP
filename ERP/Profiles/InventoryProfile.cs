@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ERP.Data.Dtos;
+using ERP.Data.Dtos.Domain;
 using ERP.Models;
 
 namespace ERP.Profiles

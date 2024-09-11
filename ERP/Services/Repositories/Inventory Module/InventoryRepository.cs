@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ERP.Data;
 using ERP.Data.Dtos;
+using ERP.Data.Dtos.Domain;
 using ERP.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,8 +33,8 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<Inventory> ReadAllUserInventories(string userId) {
-            List<Inventory> readInventoryDtos = _context.Inventories.Where(x => x.userId == userId).ToList();
+        public List<Inventory> ReadAllBusinessInventories(string businessId) {
+            List<Inventory> readInventoryDtos = _context.Inventories.Where(x => x.businessId == businessId).ToList();
             return readInventoryDtos;
         }
 

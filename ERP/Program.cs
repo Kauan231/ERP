@@ -41,7 +41,7 @@ builder.Services.AddScoped<IRolesService, RolesService>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IShipmentRepository, ShipmentRepository>();
-
+builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();

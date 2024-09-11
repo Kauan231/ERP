@@ -1,7 +1,8 @@
-﻿using ERP.Data.Dtos;
+﻿using Microsoft.AspNetCore.Mvc;
+using ERP.Data.Dtos;
 using ERP.Repositories;
 using ERP.Models;
-using Microsoft.AspNetCore.Mvc;
+
 
 namespace ERP.Controllers
 {
@@ -23,7 +24,6 @@ namespace ERP.Controllers
         public ReadProductDto Get(string id)
         {
             ReadProductDto readProductDto = _productRepository.Read(id);
-            _productRepository.SaveChanges();
             return readProductDto;
         }
 

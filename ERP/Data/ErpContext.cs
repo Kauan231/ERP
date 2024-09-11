@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ERP.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using ERP.Models.Domain;
 
 namespace ERP.Data
 {
@@ -19,10 +20,14 @@ namespace ERP.Data
                 .HasOne(product => product.Inventories)
                 .WithMany(inventory => inventory.Products)
                 .HasForeignKey(product => product.inventoryId);
+            builder.Entity<Business>()
+                .HasOne(business => business.Users)
+                .WithMany(user => user.Businesses)
+                .HasForeignKey(business => business.userId);
             builder.Entity<Inventory>()
-                .HasOne(inventory => inventory.Users)
-                .WithMany(user => user.Inventories)
-                .HasForeignKey(inventory => inventory.userId);
+                .HasOne(inventory => inventory.Businesses)
+                .WithMany(business => business.Inventories)
+                .HasForeignKey(inventory => inventory.businessId);
             builder.Entity<Shipment>()
                 .HasOne(shipment => shipment.Products)
                 .WithMany(product => product.shipments)
@@ -33,6 +38,7 @@ namespace ERP.Data
         public DbSet<Inventory> Inventories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Shipment> Shipments { get; set; }
+        public DbSet<Business> Businesses { get; set; }
         public DbSet<User> Users { get; set; }
 
     }

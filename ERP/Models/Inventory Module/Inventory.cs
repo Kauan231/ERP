@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ERP.Models.Domain;
 
 namespace ERP.Models
 {
@@ -9,7 +10,7 @@ namespace ERP.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public ICollection<Product> Products { get; set; }
-        public string? userId { get; set; }
-        public virtual User Users { get; set; }
+        public string? businessId { get; set; }
+        public virtual Business Businesses { get; set; }
     }
 }

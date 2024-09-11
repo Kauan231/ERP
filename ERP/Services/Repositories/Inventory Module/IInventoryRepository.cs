@@ -1,4 +1,5 @@
 ﻿using ERP.Data.Dtos;
+using ERP.Data.Dtos.Domain;
 using ERP.Models;
 
 namespace ERP.Repositories
@@ -9,6 +10,6 @@ namespace ERP.Repositories
         Inventory Create(CreateInventoryDto inventory);
         ReadInventoryDto Read(string id);
         void Delete(string id);
-        List<Inventory> ReadAllUserInventories(string userId);
+        List<Inventory> ReadAllBusinessInventories(string businessId);
     }
 }

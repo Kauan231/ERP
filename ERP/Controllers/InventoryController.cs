@@ -1,8 +1,8 @@
-﻿using ERP.Data.Dtos;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using ERP.Data.Dtos;
 using ERP.Repositories;
 using ERP.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ERP.Controllers
 {
@@ -23,19 +23,15 @@ namespace ERP.Controllers
         public ReadInventoryDto Get(string id)
         {
             ReadInventoryDto readInventoryDto = _inventoryRepository.Read(id);
-            _inventoryRepository.SaveChanges();
             return readInventoryDto;
         }
 
         // POST <InventoryController>
         [HttpPost]
         [Authorize(Roles = "admin")]
-        public Inventory Post(string InventoryName)
+        public Inventory Post(CreateInventoryDto createInventoryDto)
         {
-            CreateInventoryDto createdInventoryDto = new CreateInventoryDto();
-            createdInventoryDto.userId = this.User.Claims.First(i => i.Type == "id").Value;
-            createdInventoryDto.Name = InventoryName;
-            Inventory inventory = _inventoryRepository.Create(createdInventoryDto);
+            Inventory inventory = _inventoryRepository.Create(createInventoryDto);
             _inventoryRepository.SaveChanges();
             return inventory;
         }

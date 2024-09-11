@@ -1,7 +1,8 @@
-﻿using ERP.Data.Dtos;
+﻿using Microsoft.AspNetCore.Mvc;
+using ERP.Data.Dtos;
 using ERP.Repositories;
 using ERP.Models;
-using Microsoft.AspNetCore.Mvc;
+
 
 namespace ERP.Controllers
 {
@@ -21,7 +22,6 @@ namespace ERP.Controllers
         public ReadShipmentDto Get(string id)
         {
             ReadShipmentDto readShipmentDto = _shipmentRepository.Read(id);
-            _shipmentRepository.SaveChanges();
             return readShipmentDto;
         }
 
