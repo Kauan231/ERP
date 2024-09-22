@@ -48,5 +48,12 @@ namespace ERP.Repositories
             List<Business> readBusinessDto = _context.Businesses.Where(x => x.userId == userId).ToList();
             return readBusinessDto;
         }
+
+        // "Client from Business"
+        public List<Client> GetBusinessClients(string bussinessId)
+        {
+            List<Client> clients = _context.Clients.Where(x => x.businessId == bussinessId).ToList();
+            return clients;
+        }        
     }
 }

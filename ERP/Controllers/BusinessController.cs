@@ -12,10 +12,12 @@ namespace ERP.Controllers
     public class BusinessController : ControllerBase
     {
         private readonly IBusinessRepository _businessRepository;
+        private readonly IClientRepository _clientRepository;
 
-        public BusinessController(IBusinessRepository businessRepository)
+        public BusinessController(IBusinessRepository businessRepository, IClientRepository clientRepository)
         {
             _businessRepository = businessRepository;
+            _clientRepository = clientRepository;
         }
 
         // GET <BusinessController>/5
@@ -47,6 +49,43 @@ namespace ERP.Controllers
         {
             _businessRepository.Delete(id);
             _businessRepository.SaveChanges();
+        }
+
+        [HttpPost("{Id}/Client")]
+        [Authorize(Roles = "admin")]
+        public Client CreateClient([FromRoute] string Id, string ClientName)
+        {
+            CreateClientDto dto = new CreateClientDto();
+            dto.Name = ClientName;
+            dto.businessId = Id;
+
+            Client client = _clientRepository.Create(dto);
+            _clientRepository.SaveChanges();
+            return client;
+        }
+
+        [HttpGet("{Id}/Clients")]
+        [Authorize(Roles = "admin")]
+        public List<Client> ReadAllClients([FromRoute] string Id)
+        {
+            List<Client> clients = _clientRepository.ReadAllBusinessClients(Id);
+            return clients;
+        }
+
+        [HttpGet("{Id}/Client/{clientId}")]
+        [Authorize(Roles = "admin")]
+        public ReadClientDto ReadClient([FromRoute] string clientId)
+        {
+            ReadClientDto client = _clientRepository.Read(clientId);
+            return client;
+        }
+
+        [HttpDelete("{Id}/Client/{clientId}")]
+        [Authorize(Roles = "admin")]
+        public void DeleteClient([FromRoute] string clientId)
+        {
+            _clientRepository.Delete(clientId);
+            _clientRepository.SaveChanges();
         }
     }
 }

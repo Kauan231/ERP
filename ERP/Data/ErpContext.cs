@@ -40,7 +40,7 @@ namespace ERP.Data
         public DbSet<Shipment> Shipments { get; set; }
         public DbSet<Business> Businesses { get; set; }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Client> Clients { get; set; }
         public DbSet<Order> Orders { get; set; }
     }
 }
