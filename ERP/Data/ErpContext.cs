@@ -41,5 +41,6 @@ namespace ERP.Data
         public DbSet<Business> Businesses { get; set; }
         public DbSet<User> Users { get; set; }
 
+        public DbSet<Order> Orders { get; set; }
     }
 }
