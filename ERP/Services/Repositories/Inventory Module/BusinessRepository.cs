@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using ERP.Data;
-using ERP.Data.Dtos;
 using ERP.Data.Dtos.Domain;
 using ERP.Models.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -20,8 +19,7 @@ namespace ERP.Repositories
         public Business Create(CreateBusinessDto createDto)
         {
             Business business = _mapper.Map<Business>(createDto);
-            var guid = Guid.NewGuid().ToString();
-            business.Id = guid;
+            business.Id = Guid.NewGuid().ToString();
             _context.Businesses.Add(business);
             return business;
         }
@@ -32,24 +30,23 @@ namespace ERP.Repositories
             ReadBusinessDto readBusinessDto = _mapper.Map<ReadBusinessDto>(business);
             return readBusinessDto;
         }
-
-        public List<Business> ReadAllUserBusinesses(string userId) {
-            List<Business> readBusinessDto = _context.Businesses.Where(x => x.userId == userId).ToList();
-            return readBusinessDto;
-        }
-
         public void Delete(string id)
         {
             Business business = _context.Businesses.SingleOrDefault(x => x.Id == id);
-            if(business != null)
+            if (business != null)
             {
                 _context.Businesses.Remove(business);
             }
         }
-
         public void SaveChanges()
         {
             _context.SaveChanges();
+        }
+
+        // "My businesses"
+        public List<Business> ReadAllUserBusinesses(string userId) {
+            List<Business> readBusinessDto = _context.Businesses.Where(x => x.userId == userId).ToList();
+            return readBusinessDto;
         }
     }
 }
