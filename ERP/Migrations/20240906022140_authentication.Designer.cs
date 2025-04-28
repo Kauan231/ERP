@@ -3,6 +3,7 @@ using System;
 using ERP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,20 +11,17 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(ErpContext))]
-    partial class ErpContextModelSnapshot : ModelSnapshot
+    [Migration("20240906022140_authentication")]
+    partial class authentication
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.33");
 
-            modelBuilder.Entity("ERP.Models.Domain.Business", b =>
+            modelBuilder.Entity("ERP.Models.Inventory", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("userId")
@@ -33,95 +31,6 @@ namespace ERP.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("userId");
-
-                    b.ToTable("Businesses");
-                });
-
-            modelBuilder.Entity("ERP.Models.Domain.Client", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("businessId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("businessId");
-
-                    b.ToTable("Clients");
-                });
-
-            modelBuilder.Entity("ERP.Models.Domain.Order", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("clientId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("shipmentId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("clientId");
-
-                    b.HasIndex("shipmentId");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("ERP.Models.Domain.OrderItem", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Amount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("productId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("shipmentId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("productId");
-
-                    b.HasIndex("shipmentId");
-
-                    b.ToTable("OrderItems");
-                });
-
-            modelBuilder.Entity("ERP.Models.Inventory", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("businessId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("businessId");
 
                     b.ToTable("Inventories");
                 });
@@ -142,16 +51,11 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("OrderId")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("inventoryId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
 
                     b.HasIndex("inventoryId");
 
@@ -163,14 +67,14 @@ namespace ERP.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ProductId")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Amount")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("productId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -179,7 +83,7 @@ namespace ERP.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("productId");
 
                     b.ToTable("Shipments");
                 });
@@ -376,10 +280,10 @@ namespace ERP.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ERP.Models.Domain.Business", b =>
+            modelBuilder.Entity("ERP.Models.Inventory", b =>
                 {
                     b.HasOne("ERP.Models.User", "Users")
-                        .WithMany("Businesses")
+                        .WithMany("Inventories")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -387,70 +291,8 @@ namespace ERP.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("ERP.Models.Domain.Client", b =>
-                {
-                    b.HasOne("ERP.Models.Domain.Business", "Business")
-                        .WithMany("Clients")
-                        .HasForeignKey("businessId");
-
-                    b.Navigation("Business");
-                });
-
-            modelBuilder.Entity("ERP.Models.Domain.Order", b =>
-                {
-                    b.HasOne("ERP.Models.Domain.Client", "client")
-                        .WithMany("Orders")
-                        .HasForeignKey("clientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Models.Shipment", "Shipment")
-                        .WithMany("Orders")
-                        .HasForeignKey("shipmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Shipment");
-
-                    b.Navigation("client");
-                });
-
-            modelBuilder.Entity("ERP.Models.Domain.OrderItem", b =>
-                {
-                    b.HasOne("ERP.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("productId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Models.Shipment", "Shipment")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("shipmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Shipment");
-                });
-
-            modelBuilder.Entity("ERP.Models.Inventory", b =>
-                {
-                    b.HasOne("ERP.Models.Domain.Business", "Businesses")
-                        .WithMany("Inventories")
-                        .HasForeignKey("businessId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Businesses");
-                });
-
             modelBuilder.Entity("ERP.Models.Product", b =>
                 {
-                    b.HasOne("ERP.Models.Domain.Order", null)
-                        .WithMany("products")
-                        .HasForeignKey("OrderId");
-
                     b.HasOne("ERP.Models.Inventory", "Inventories")
                         .WithMany("Products")
                         .HasForeignKey("inventoryId")
@@ -462,9 +304,13 @@ namespace ERP.Migrations
 
             modelBuilder.Entity("ERP.Models.Shipment", b =>
                 {
-                    b.HasOne("ERP.Models.Product", null)
+                    b.HasOne("ERP.Models.Product", "Products")
                         .WithMany("shipments")
-                        .HasForeignKey("ProductId");
+                        .HasForeignKey("productId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -518,23 +364,6 @@ namespace ERP.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ERP.Models.Domain.Business", b =>
-                {
-                    b.Navigation("Clients");
-
-                    b.Navigation("Inventories");
-                });
-
-            modelBuilder.Entity("ERP.Models.Domain.Client", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("ERP.Models.Domain.Order", b =>
-                {
-                    b.Navigation("products");
-                });
-
             modelBuilder.Entity("ERP.Models.Inventory", b =>
                 {
                     b.Navigation("Products");
@@ -545,16 +374,9 @@ namespace ERP.Migrations
                     b.Navigation("shipments");
                 });
 
-            modelBuilder.Entity("ERP.Models.Shipment", b =>
-                {
-                    b.Navigation("OrderItems");
-
-                    b.Navigation("Orders");
-                });
-
             modelBuilder.Entity("ERP.Models.User", b =>
                 {
-                    b.Navigation("Businesses");
+                    b.Navigation("Inventories");
                 });
 #pragma warning restore 612, 618
         }

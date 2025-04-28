@@ -7,8 +7,11 @@ namespace ERP.Models.Domain
         [Key]
         [Required]
         public string Id { get; set; }
-        public string Name { get; set; }
         public string? Status { get; set; }
+        public ICollection<Product> products { get; set; }
+
+        public string clientId { get; set; }
+        public virtual Client client { get; set; }
         public string? shipmentId { get; set; }
         public virtual Shipment Shipment { get; set; }
     }

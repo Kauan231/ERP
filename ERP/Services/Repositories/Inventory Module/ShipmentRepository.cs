@@ -1,7 +1,9 @@
-﻿using AutoMapper;
+﻿using System.Diagnostics;
+using AutoMapper;
 using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Models;
+using ERP.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Repositories
@@ -15,18 +17,28 @@ namespace ERP.Repositories
         {
             _context = context;
             _mapper = mapper;
-            _productRepository = new ProductRepository(_context, _mapper); 
+            _productRepository = new ProductRepository(_context, _mapper);
         }
 
         public Shipment Receive(CreateShipmentDto createDto)
         {
-            Shipment shipment = _mapper.Map<Shipment>(createDto);
-            _productRepository.AddAmount(shipment.productId, createDto.Amount);
-
-            var guid = Guid.NewGuid().ToString();
-            shipment.Id = guid;
+            Shipment shipment = new Shipment();
+            shipment.Id = Guid.NewGuid().ToString();
             shipment.Type = "RECEIVE";
+            shipment.Status = "FINISHED";
             shipment.shipmentDate = DateTime.Now;
+
+            List<OrderItem> orderItems = new List<OrderItem>();
+            foreach (OrderItem orderItem in createDto.OrderItems)
+            {
+                _productRepository.AddAmount(orderItem.productId, orderItem.Amount);
+                orderItem.Id = Guid.NewGuid().ToString();
+                orderItem.shipmentId = shipment.Id;
+                _context.OrderItems.Add(orderItem);
+                orderItems.Add(orderItem);
+            }
+
+            shipment.OrderItems = orderItems;
 
             _context.Shipments.Add(shipment);
             return shipment;
@@ -34,13 +46,24 @@ namespace ERP.Repositories
 
         public Shipment Send(CreateShipmentDto sendDto)
         {
-            Shipment shipment = _mapper.Map<Shipment>(sendDto);
-            _productRepository.SubtractAmount(sendDto.productId, sendDto.Amount);
-
+            Shipment shipment = new Shipment();
             var shipmentGuid = Guid.NewGuid().ToString();
             shipment.Id = shipmentGuid;
             shipment.Type = "SEND";
+            shipment.Status = "Finished";
             shipment.shipmentDate = DateTime.Now;
+
+            List<OrderItem> orderItems = new List<OrderItem>();
+            foreach (OrderItem orderItem in shipment.OrderItems)
+            {
+                _productRepository.SubtractAmount(orderItem.productId, orderItem.Amount);
+                orderItem.Id = Guid.NewGuid().ToString();
+                orderItem.shipmentId = shipment.Id;
+                _context.OrderItems.Add(orderItem);
+                orderItems.Add(orderItem);
+            }
+
+            shipment.OrderItems = orderItems;
 
             _context.Shipments.Add(shipment);
             return shipment;
@@ -55,10 +78,16 @@ namespace ERP.Repositories
 
             var shipmentGuid = Guid.NewGuid().ToString();
             Shipment shipment = new Shipment();
-            shipment.Amount = transferDto.Amount;
             shipment.Type = "TRANSFER";
+            shipment.Status = "PLACED";
             shipment.Id = shipmentGuid;
             shipment.shipmentDate = DateTime.Now;
+
+            var OrderItemGuid = Guid.NewGuid().ToString();
+            OrderItem orderItem = new OrderItem();
+            orderItem.Id = OrderItemGuid;
+            orderItem.Amount = transferDto.Amount;
+            orderItem.shipmentId = shipmentGuid;
 
             // If it does not have then Create
             if (checkInventory == null)
@@ -67,15 +96,16 @@ namespace ERP.Repositories
                 newProduct.Amount = transferDto.Amount;
                 newProduct.inventoryId = transferDto.toInventoryId;
                 Product createdProduct = _productRepository.Create(newProduct);
-                shipment.productId = createdProduct.Id;
-            } 
+                orderItem.productId = createdProduct.Id;
+            }
             else
             {
                 checkInventory.Amount += transferDto.Amount;
-                shipment.productId = transferDto.productId;
+                orderItem.productId = transferDto.productId;
             }
 
             _context.Shipments.Add(shipment);
+            _context.OrderItems.Add(orderItem);
             return shipment;
         }
 
@@ -88,7 +118,13 @@ namespace ERP.Repositories
 
         public List<Shipment> ReadAllShipments(string id)
         {
-            List<Shipment> shipments = _context.Shipments.Where(x => x.productId == id).ToList();
+            List<OrderItem> orderItemsByProductId = _context.OrderItems.Where(orderItem =>  orderItem.productId == id).ToList();
+            List<String> shipmentsFromOrderItemsByProductId = new List<string>();
+            foreach (var item in orderItemsByProductId)
+            {
+                shipmentsFromOrderItemsByProductId.Add(item.productId);
+            }
+            List<Shipment> shipments = _context.Shipments.Where(x => shipmentsFromOrderItemsByProductId.Contains(x.Id) ).ToList();
             return shipments;
         }
 
@@ -98,7 +134,10 @@ namespace ERP.Repositories
             if(shipment != null)
             {
                 _context.Shipments.Remove(shipment);
-                _productRepository.SubtractAmount(shipment.productId, shipment.Amount);
+                foreach(OrderItem orderItem in shipment.OrderItems)
+                {
+                    _productRepository.SubtractAmount(orderItem.productId, orderItem.Amount);
+                }
             }
         }
 

@@ -9,7 +9,7 @@ namespace ERP.Data.Dtos
         public int Amount { get; set; }
         [Required]
         public string productId { get; set; }
-        [Required]
+        [Required] 
         public string toInventoryId { get; set; }
     }
 }
