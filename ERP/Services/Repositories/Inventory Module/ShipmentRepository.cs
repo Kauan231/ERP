@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-using AutoMapper;
+﻿using AutoMapper;
 using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Models;
 using ERP.Models.Domain;
-using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Repositories
 {
@@ -90,29 +88,41 @@ namespace ERP.Repositories
         {
             _productRepository.SubtractAmount(transferDto.productId, transferDto.Amount);
 
-            //Checks if destination already has the type of Product
-            Product checkInventory = _context.Products.SingleOrDefault(x => x.Id == transferDto.productId && x.inventoryId == transferDto.toInventoryId);
+            var shipment = new Shipment
+            {
+                Id = Guid.NewGuid().ToString(),
+                Type = "TRANSFER",
+                Status = "PLACED",
+                shipmentDate = DateTime.Now,
+                OrderItems = new List<OrderItem>()
+            };
 
-            var shipmentGuid = Guid.NewGuid().ToString();
-            Shipment shipment = new Shipment();
-            shipment.Type = "TRANSFER";
-            shipment.Status = "PLACED";
-            shipment.Id = shipmentGuid;
-            shipment.shipmentDate = DateTime.Now;
+            _context.Shipments.Add(shipment);
+            _context.SaveChanges();
 
-            var OrderItemGuid = Guid.NewGuid().ToString();
-            OrderItem orderItem = new OrderItem();
-            orderItem.Id = OrderItemGuid;
-            orderItem.Amount = transferDto.Amount;
-            orderItem.shipmentId = shipmentGuid;
+            var orderItem = new OrderItem
+            {
+                Id = Guid.NewGuid().ToString(),
+                Amount = transferDto.Amount,
+                Shipment = shipment
+            };
 
-            // If it does not have then Create
+            var checkInventory = _context.Products
+                .SingleOrDefault(x => x.Id == transferDto.productId && x.inventoryId == transferDto.toInventoryId);
+
             if (checkInventory == null)
             {
-                CreateProductDto newProduct = _mapper.Map<CreateProductDto>(_productRepository.Read(transferDto.productId));
-                newProduct.Amount = transferDto.Amount;
-                newProduct.inventoryId = transferDto.toInventoryId;
-                Product createdProduct = _productRepository.Create(newProduct);
+                var originalProduct = _productRepository.Read(transferDto.productId);
+                if (originalProduct == null)
+                    throw new Exception("Cannot find original product");
+
+                CreateProductDto newProductDto = new CreateProductDto();
+                newProductDto.Name = originalProduct.Name;
+                newProductDto.Description = originalProduct.Description;
+                newProductDto.Amount = transferDto.Amount;
+                newProductDto.inventoryId = transferDto.toInventoryId;
+
+                var createdProduct = _productRepository.Create(newProductDto);
                 orderItem.productId = createdProduct.Id;
             }
             else
@@ -121,8 +131,7 @@ namespace ERP.Repositories
                 orderItem.productId = transferDto.productId;
             }
 
-            _context.Shipments.Add(shipment);
-            _context.OrderItems.Add(orderItem);
+            shipment.OrderItems.Add(orderItem);
             return shipment;
         }
 
@@ -150,7 +159,6 @@ namespace ERP.Repositories
             Shipment shipment = _context.Shipments.SingleOrDefault(x => x.Id == id);
             if (shipment != null)
             {
-                _context.Shipments.Remove(shipment);
                 foreach (OrderItem orderItem in shipment.OrderItems)
                 {
                     _productRepository.SubtractAmount(orderItem.productId, orderItem.Amount);

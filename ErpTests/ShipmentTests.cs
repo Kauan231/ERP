@@ -98,13 +98,12 @@ namespace ErpTests
 
             Assert.True(CheckAmount(createdProduct, createdInventory.Id, 0));
 
-            OrderItem orderItem = new OrderItem();
-            orderItem.Id = Guid.NewGuid().ToString();
+            CreateOrderItemDto orderItem = new CreateOrderItemDto();
             orderItem.Amount = 10;
             orderItem.productId = createdProduct.Id;
 
             CreateShipmentDto createShipmentDto = new CreateShipmentDto();
-            createShipmentDto.OrderItems = new List<OrderItem>();
+            createShipmentDto.OrderItems = new List<CreateOrderItemDto>();
             createShipmentDto.OrderItems.Add(orderItem);
 
             _shipmentRepository.Receive(createShipmentDto);
@@ -127,7 +126,7 @@ namespace ErpTests
             _shipmentRepository.Delete(shipmentTransfer.Id);
             _shipmentRepository.SaveChanges();
 
-            Assert.True(CheckAmount(createdProduct, createdInventory1.Id, 0));
+            Assert.True(CheckAmount(createdProduct, createdInventory.Id, 0));
         }
     }
 }
