@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +13,10 @@ using ERP.Data;
 using ERP.Services.Roles;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 // DB       ----------------------------------------------------------------------------
 var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = "Erp.db" };
@@ -33,7 +37,7 @@ builder.Services.AddControllers()
 
 
 
-builder.Services.AddScoped<UserService>(); 
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IRolesService, RolesService>();
 
@@ -101,11 +105,13 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Iniciando aplicação...");
+
 //Insert roles in database
 var scope = app.Services.CreateScope();
 IRolesService service = scope.ServiceProvider.GetService<IRolesService>();
 service.Startup();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
