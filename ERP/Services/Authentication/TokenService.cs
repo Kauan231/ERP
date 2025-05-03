@@ -29,7 +29,7 @@ namespace ERP.Services.Authentication
                 new Claim("loginTimestamp", DateTime.UtcNow.ToString())
             };
 
-            foreach(string role in roles)
+            foreach (string role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
@@ -42,7 +42,7 @@ namespace ERP.Services.Authentication
 
             var token = new JwtSecurityToken
                 (
-                expires: DateTime.Now.AddMinutes(10),
+                expires: DateTime.Now.AddMinutes(60),
                 claims: claims,
                 signingCredentials: signingCredentials
                 );

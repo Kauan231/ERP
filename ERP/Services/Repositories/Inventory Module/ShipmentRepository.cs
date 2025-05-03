@@ -29,13 +29,16 @@ namespace ERP.Repositories
             shipment.shipmentDate = DateTime.Now;
 
             List<OrderItem> orderItems = new List<OrderItem>();
-            foreach (OrderItem orderItem in createDto.OrderItems)
+            foreach (CreateOrderItemDto orderItem in createDto.OrderItems)
             {
                 _productRepository.AddAmount(orderItem.productId, orderItem.Amount);
-                orderItem.Id = Guid.NewGuid().ToString();
-                orderItem.shipmentId = shipment.Id;
-                _context.OrderItems.Add(orderItem);
-                orderItems.Add(orderItem);
+                OrderItem orderItemToAdd = new OrderItem();
+                orderItemToAdd.Id = Guid.NewGuid().ToString();
+                orderItemToAdd.Amount = orderItem.Amount;
+                orderItemToAdd.productId = orderItem.productId;
+                orderItemToAdd.shipmentId = shipment.Id;
+                _context.OrderItems.Add(orderItemToAdd);
+                orderItems.Add(orderItemToAdd);
             }
 
             shipment.OrderItems = orderItems;
@@ -54,18 +57,32 @@ namespace ERP.Repositories
             shipment.shipmentDate = DateTime.Now;
 
             List<OrderItem> orderItems = new List<OrderItem>();
-            foreach (OrderItem orderItem in shipment.OrderItems)
+            foreach (CreateOrderItemDto orderItem in sendDto.OrderItems)
             {
                 _productRepository.SubtractAmount(orderItem.productId, orderItem.Amount);
-                orderItem.Id = Guid.NewGuid().ToString();
-                orderItem.shipmentId = shipment.Id;
-                _context.OrderItems.Add(orderItem);
-                orderItems.Add(orderItem);
+                OrderItem orderItemToAdd = new OrderItem();
+                orderItemToAdd.Id = Guid.NewGuid().ToString();
+                orderItemToAdd.Amount = orderItem.Amount;
+                orderItemToAdd.productId = orderItem.productId;
+                orderItemToAdd.shipmentId = shipment.Id;
+                _context.OrderItems.Add(orderItemToAdd);
+                orderItems.Add(orderItemToAdd);
             }
-
             shipment.OrderItems = orderItems;
-
             _context.Shipments.Add(shipment);
+
+            List<string> productIds = sendDto.OrderItems.Select(item => item.productId).ToList();
+            List<Product> products = _context.Products
+                                            .Where(p => productIds.Contains(p.Id))
+                                            .ToList();
+
+            Order orderForClient = new Order();
+            orderForClient.Id = Guid.NewGuid().ToString();
+            orderForClient.clientId = sendDto.clientId;
+            orderForClient.Products = products;
+            orderForClient.shipmentId = shipment.Id;
+            _context.Orders.Add(orderForClient);
+
             return shipment;
         }
 
@@ -118,23 +135,23 @@ namespace ERP.Repositories
 
         public List<Shipment> ReadAllShipments(string id)
         {
-            List<OrderItem> orderItemsByProductId = _context.OrderItems.Where(orderItem =>  orderItem.productId == id).ToList();
+            List<OrderItem> orderItemsByProductId = _context.OrderItems.Where(orderItem => orderItem.productId == id).ToList();
             List<String> shipmentsFromOrderItemsByProductId = new List<string>();
             foreach (var item in orderItemsByProductId)
             {
                 shipmentsFromOrderItemsByProductId.Add(item.productId);
             }
-            List<Shipment> shipments = _context.Shipments.Where(x => shipmentsFromOrderItemsByProductId.Contains(x.Id) ).ToList();
+            List<Shipment> shipments = _context.Shipments.Where(x => shipmentsFromOrderItemsByProductId.Contains(x.Id)).ToList();
             return shipments;
         }
 
         public void Delete(string id)
         {
             Shipment shipment = _context.Shipments.SingleOrDefault(x => x.Id == id);
-            if(shipment != null)
+            if (shipment != null)
             {
                 _context.Shipments.Remove(shipment);
-                foreach(OrderItem orderItem in shipment.OrderItems)
+                foreach (OrderItem orderItem in shipment.OrderItems)
                 {
                     _productRepository.SubtractAmount(orderItem.productId, orderItem.Amount);
                 }

@@ -15,7 +15,7 @@ namespace ERP.Repositories
             _context = context;
             _mapper = mapper;
         }
-        
+
         public Business Create(CreateBusinessDto createDto)
         {
             Business business = _mapper.Map<Business>(createDto);
@@ -44,7 +44,8 @@ namespace ERP.Repositories
         }
 
         // "My businesses"
-        public List<Business> ReadAllUserBusinesses(string userId) {
+        public List<Business> ReadAllUserBusinesses(string userId)
+        {
             List<Business> readBusinessDto = _context.Businesses.Where(x => x.userId == userId).ToList();
             return readBusinessDto;
         }
@@ -54,6 +55,6 @@ namespace ERP.Repositories
         {
             List<Client> clients = _context.Clients.Where(x => x.businessId == bussinessId).ToList();
             return clients;
-        }        
+        }
     }
 }

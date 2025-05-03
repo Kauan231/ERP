@@ -16,7 +16,7 @@ namespace ERP.Repositories
             _context = context;
             _mapper = mapper;
         }
-        
+
         public Inventory Create(CreateInventoryDto createDto)
         {
             Inventory inventory = _mapper.Map<Inventory>(createDto);
@@ -28,20 +28,21 @@ namespace ERP.Repositories
 
         public ReadInventoryDto Read(string id)
         {
-            Inventory inventory = _context.Inventories.Include(x => x.Products).SingleOrDefault(x => x.Id == id);
+            Inventory inventory = _context.Inventories.Include(inventory => inventory.Products).SingleOrDefault(inventory => inventory.Id == id);
             ReadInventoryDto dto = _mapper.Map<ReadInventoryDto>(inventory);
             return dto;
         }
 
-        public List<Inventory> ReadAllBusinessInventories(string businessId) {
-            List<Inventory> readInventoryDtos = _context.Inventories.Where(x => x.businessId == businessId).ToList();
+        public List<Inventory> ReadAllBusinessInventories(string businessId)
+        {
+            List<Inventory> readInventoryDtos = _context.Inventories.Where(inventory => inventory.businessId == businessId).ToList();
             return readInventoryDtos;
         }
 
         public void Delete(string id)
         {
             Inventory inventory = _context.Inventories.SingleOrDefault(x => x.Id == id);
-            if(inventory != null)
+            if (inventory != null)
             {
                 _context.Inventories.Remove(inventory);
             }

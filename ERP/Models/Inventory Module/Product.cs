@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ERP.Models.Domain;
 using System.ComponentModel.DataAnnotations;
 
 namespace ERP.Models
@@ -14,6 +14,6 @@ namespace ERP.Models
 
         public string? inventoryId { get; set; }
         public virtual Inventory Inventories { get; set; }
-        public ICollection<Shipment> shipments { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

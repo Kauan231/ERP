@@ -16,7 +16,7 @@ namespace ERP.Repositories
             _context = context;
             _mapper = mapper;
         }
-      
+
         public void SaveChanges()
         {
             _context.SaveChanges();
@@ -37,7 +37,8 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<Client> ReadAllBusinessClients(string Id) {
+        public List<Client> ReadAllBusinessClients(string Id)
+        {
             List<Client> clients = _context.Clients.Where(x => x.businessId == Id).ToList();
             return clients;
         }

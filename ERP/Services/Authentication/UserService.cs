@@ -22,11 +22,11 @@ namespace ERP.Services.Authentication
         {
             User UserIdentity = _mapper.Map<User>(dto);
 
-            IdentityResult resultado = await _userManager.CreateAsync(UserIdentity, dto.Password);
+            IdentityResult result = await _userManager.CreateAsync(UserIdentity, dto.Password);
 
-            if (!resultado.Succeeded)
+            if (!result.Succeeded)
             {
-                throw new ApplicationException("Falha ao cadastrar usuário!");
+                throw new ApplicationException(result.ToString());
             }
         }
 

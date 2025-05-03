@@ -1,11 +1,8 @@
-﻿using ERP.Models;
-using ERP.Models.Domain;
-using System.ComponentModel.DataAnnotations;
-
-namespace ERP.Data.Dtos
+﻿namespace ERP.Data.Dtos
 {
     public class CreateShipmentDto
-    {   
-        public List<OrderItem> OrderItems { get; set; }
+    {
+        public List<CreateOrderItemDto> OrderItems { get; set; }
+        public string clientId { get; set; }
     }
 }

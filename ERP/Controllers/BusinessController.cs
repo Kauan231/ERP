@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using ERP.Repositories;
 using ERP.Data.Dtos.Domain;
-using ERP.Data.Dtos;
 using ERP.Models.Domain;
 
 namespace ERP.Controllers
@@ -13,79 +12,96 @@ namespace ERP.Controllers
     {
         private readonly IBusinessRepository _businessRepository;
         private readonly IClientRepository _clientRepository;
+        private readonly ILogger<BusinessController> _logger;
 
-        public BusinessController(IBusinessRepository businessRepository, IClientRepository clientRepository)
+        public BusinessController(IBusinessRepository businessRepository, IClientRepository clientRepository, ILogger<BusinessController> logger)
         {
             _businessRepository = businessRepository;
             _clientRepository = clientRepository;
+            _logger = logger;
         }
 
         // GET <BusinessController>/5
         [HttpGet("{id}")]
         [Authorize]
-        public ReadBusinessDto Get(string id)
+        public ActionResult<ReadBusinessDto> Get(string id)
         {
             ReadBusinessDto readBusinessDto = _businessRepository.Read(id);
-            return readBusinessDto;
+            return Ok(readBusinessDto);
         }
 
         // POST <BusinessController>
         [HttpPost]
         [Authorize(Roles = "admin")]
-        public Business Post(string BusinessName)
+        public ActionResult<Business> Post([FromBody] string businessName)
         {
-            CreateBusinessDto createBusinessDto = new CreateBusinessDto();
-            createBusinessDto.userId = this.User.Claims.First(i => i.Type == "id").Value;
-            createBusinessDto.Name = BusinessName;
+            var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
+
+            if (userIdClaim == null)
+            {
+                _logger.LogWarning("Usuário não possui o claim 'id'.");
+                return Unauthorized("Usuário não autenticado corretamente.");
+            }
+
+            CreateBusinessDto createBusinessDto = new CreateBusinessDto
+            {
+                userId = userIdClaim.Value,
+                Name = businessName
+            };
+
+            _logger.LogInformation("Criando Business: UserId: {UserId}, Name: {Name}", createBusinessDto.userId, createBusinessDto.Name);
+
             Business business = _businessRepository.Create(createBusinessDto);
+            _logger.LogInformation("Business criado {businessId}, {Name}", business.Id, business.Name);
+
             _businessRepository.SaveChanges();
-            return business;
+
+            return Ok(business);
         }
 
         // DELETE <BusinessController>/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin")]
-        public void Delete(string id)
+        public ActionResult Delete(string id)
         {
             _businessRepository.Delete(id);
             _businessRepository.SaveChanges();
+            return Ok(id);
         }
 
-        [HttpPost("{Id}/Client")]
+        [HttpPost("{Id}/addClient")]
         [Authorize(Roles = "admin")]
-        public Client CreateClient([FromRoute] string Id, string ClientName)
+        public ActionResult<Client> CreateClient([FromRoute] string Id, string ClientName)
         {
-            CreateClientDto dto = new CreateClientDto();
-            dto.Name = ClientName;
-            dto.businessId = Id;
-
+            CreateClientDto dto = new CreateClientDto { Name = ClientName, businessId = Id };
             Client client = _clientRepository.Create(dto);
             _clientRepository.SaveChanges();
-            return client;
+            return Ok(client);
         }
 
         [HttpGet("{Id}/Clients")]
         [Authorize(Roles = "admin")]
-        public List<Client> ReadAllClients([FromRoute] string Id)
+        public ActionResult<List<Client>> ReadAllClients([FromRoute] string Id)
         {
             List<Client> clients = _clientRepository.ReadAllBusinessClients(Id);
-            return clients;
+            return Ok(clients);
         }
 
         [HttpGet("{Id}/Client/{clientId}")]
         [Authorize(Roles = "admin")]
-        public ReadClientDto ReadClient([FromRoute] string clientId)
+        public ActionResult<ReadClientDto> ReadClient([FromRoute] string clientId)
         {
             ReadClientDto client = _clientRepository.Read(clientId);
-            return client;
+            return Ok(client);
         }
 
         [HttpDelete("{Id}/Client/{clientId}")]
         [Authorize(Roles = "admin")]
-        public void DeleteClient([FromRoute] string clientId)
+        public ActionResult DeleteClient([FromRoute] string clientId)
         {
             _clientRepository.Delete(clientId);
             _clientRepository.SaveChanges();
+            return Ok(clientId);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ERP.Services.Authentication;
@@ -17,9 +18,7 @@ namespace ERP.Controllers
         private readonly UserManager<User> _userManager;
         private UserService _UserService;
         private TokenService _tokenService;
-
-        public UserController(IInventoryRepository inventoryRepository, UserService userService, 
-            TokenService tokenService, UserManager<User> userManager, IBusinessRepository businessRepository)
+        public UserController(UserService userService, TokenService tokenService, UserManager<User> userManager, IBusinessRepository businessRepository)
         {
             _UserService = userService;
             _tokenService = tokenService;
@@ -31,14 +30,29 @@ namespace ERP.Controllers
         public async Task<IActionResult> RegisterUser
             ([FromBody] CreateUserDto dto)
         {
-            await _UserService.SignUser(dto);
+            try
+            {
+                await _UserService.SignUser(dto);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(ex.Message);
+            }
             return Ok("User registered with success");
         }
 
         [HttpPost("Login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginUserDto dto)
         {
-            User loggedUser = await _UserService.Login(dto);
+            User loggedUser;
+            try
+            {
+                loggedUser = await _UserService.Login(dto);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(ex.Message);
+            }
             var token = await _tokenService.GenerateToken(loggedUser);
             return Ok(token);
         }
@@ -51,17 +65,16 @@ namespace ERP.Controllers
             return Ok("User removed");
         }
 
-        // Get "My Profile" 
         [HttpGet]
         [Authorize]
-        [Route("Profile")]
+        [Route("GetUser")]
         public async Task<User> GetUser()
         {
-            User user = await _userManager.FindByIdAsync(this.User.Claims.First(i => i.Type == "id").Value);  
+            User user = await _userManager.FindByIdAsync(this.User.Claims.First(i => i.Type == "id").Value);
             return user;
         }
 
-        // Get "My Roles" 
+        // Get "My Roles"
         [HttpGet]
         [Authorize]
         [Route("Roles")]

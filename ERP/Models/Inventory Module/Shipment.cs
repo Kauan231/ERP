@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using ERP.Models.Domain;
 
 namespace ERP.Models
@@ -13,7 +12,7 @@ namespace ERP.Models
         public string Status { get; set; }
         public DateTime shipmentDate { get; set; }
 
-        public ICollection<OrderItem> OrderItems { get; set; }
-        public ICollection<Order>? Orders { get; set; }
+        public virtual ICollection<OrderItem>? OrderItems { get; set; }
+        public virtual ICollection<Order>? Orders { get; set; }
     }
 }

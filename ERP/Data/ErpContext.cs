@@ -41,6 +41,10 @@ namespace ERP.Data
                 .HasOne(order => order.Shipment)
                 .WithMany(shipment => shipment.Orders)
                 .HasForeignKey(order => order.shipmentId);
+            builder.Entity<Order>()
+                .HasMany(o => o.Products)
+                .WithMany(p => p.Orders)
+                .UsingEntity(j => j.ToTable("OrderProducts"));
         }
 
         public DbSet<Inventory> Inventories { get; set; }

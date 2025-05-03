@@ -20,7 +20,7 @@ namespace ERP.Controllers
         // GET <InventoryController>/5
         [HttpGet("{id}")]
         [Authorize]
-        public ReadInventoryDto Get(string id)
+        public ActionResult<ReadInventoryDto> Get(string id)
         {
             ReadInventoryDto readInventoryDto = _inventoryRepository.Read(id);
             return readInventoryDto;
@@ -29,20 +29,21 @@ namespace ERP.Controllers
         // POST <InventoryController>
         [HttpPost]
         [Authorize(Roles = "admin")]
-        public Inventory Post(CreateInventoryDto createInventoryDto)
+        public ActionResult<Inventory> Post(CreateInventoryDto createInventoryDto)
         {
             Inventory inventory = _inventoryRepository.Create(createInventoryDto);
             _inventoryRepository.SaveChanges();
-            return inventory;
+            return Ok(inventory);
         }
 
         // DELETE <InventoryController>/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "admin")]
-        public void Delete(string id)
+        public ActionResult Delete(string id)
         {
             _inventoryRepository.Delete(id);
             _inventoryRepository.SaveChanges();
+            return Ok();
         }
     }
 }

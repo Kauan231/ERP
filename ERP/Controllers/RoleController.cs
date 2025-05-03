@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using ERP.Services.Roles;
 
@@ -47,7 +46,7 @@ namespace ERP.Controllers
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError);
                 }
-            }  
+            }
         }
 
         [HttpDelete]
@@ -98,7 +97,7 @@ namespace ERP.Controllers
                 if(ex.Message.Equals("User does not exist"))
                 {
                     return NotFound("User does not exist");
-                } 
+                }
                 else
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError);

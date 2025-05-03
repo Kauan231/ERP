@@ -18,14 +18,14 @@ namespace ERP.Repositories
 
         public Product Create(CreateProductDto createDto)
         {
-            Product product = _mapper.Map<Product>(createDto); 
+            Product product = _mapper.Map<Product>(createDto);
             Product productSearch = _context.Products.SingleOrDefault(x => x.Name == product.Name && x.inventoryId == product.inventoryId);
-            if(productSearch != null) throw new Exception("Product already exists");
+            if (productSearch != null) throw new Exception("Product already exists");
 
             var guid = Guid.NewGuid().ToString();
             product.Id = guid;
 
-            _context.Products.Add(product); 
+            _context.Products.Add(product);
             return product;
         }
 
@@ -43,10 +43,11 @@ namespace ERP.Repositories
             if (product == null) throw new Exception("Product does not exist");
             product.Amount += amount;
         }
-        
-        public Product ModifyItem(Product product) {
+
+        public Product ModifyItem(Product product)
+        {
             Product productInInventory = _context.Products.SingleOrDefault(x => x.Id == product.Id);
-            if(productInInventory == null) throw new Exception("Product does not exist");
+            if (productInInventory == null) throw new Exception("Product does not exist");
             productInInventory = product;
             return productInInventory;
         }
@@ -61,7 +62,7 @@ namespace ERP.Repositories
         public void Delete(string id)
         {
             Product Product = _context.Products.SingleOrDefault(x => x.Id == id);
-            if(Product != null)
+            if (Product != null)
             {
                 _context.Products.Remove(Product);
             }
