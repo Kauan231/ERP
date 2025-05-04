@@ -18,6 +18,14 @@ namespace ERP.Controllers
             _shipmentRepository = shipmentRepository;
         }
 
+        // GET <ProductController>
+        [HttpGet]
+        public ActionResult<List<Product>> ReadAll()
+        {
+            List<Product> products = _productRepository.ReadAll();
+            return Ok(products);
+        }
+
         // GET <ProductController>/5
         [HttpGet("{id}")]
         public ActionResult<ReadProductDto> Get(string id)
@@ -26,11 +34,11 @@ namespace ERP.Controllers
             return Ok(readProductDto);
         }
 
-        // GET <ProductController>/5
+        // GET <ProductController>/5/Shipments
         [HttpGet("{id}/Shipments")]
         public ActionResult<List<Shipment>> GetShipments(string id)
         {
-            List<Shipment> readShipmentDto = _shipmentRepository.ReadAllShipments(id);
+            List<Shipment> readShipmentDto = _shipmentRepository.ReadAllShipmentsOfAProduct(id);
             return Ok(readShipmentDto);
         }
 

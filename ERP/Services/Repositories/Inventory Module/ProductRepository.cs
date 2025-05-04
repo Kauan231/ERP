@@ -2,7 +2,6 @@
 using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Repositories
 {
@@ -19,7 +18,7 @@ namespace ERP.Repositories
         public Product Create(CreateProductDto createDto)
         {
             Product product = _mapper.Map<Product>(createDto);
-            Product productSearch = _context.Products.SingleOrDefault(x => x.Name == product.Name && x.inventoryId == product.inventoryId);
+            Product productSearch = _context.Products.SingleOrDefault(product => product.Name == createDto.Name);
             if (productSearch != null) throw new Exception("Product already exists");
 
             var guid = Guid.NewGuid().ToString();
@@ -27,21 +26,6 @@ namespace ERP.Repositories
 
             _context.Products.Add(product);
             return product;
-        }
-
-        public void SubtractAmount(string id, int amount)
-        {
-            Product product = _context.Products.SingleOrDefault(x => x.Id == id);
-            if (product == null) throw new Exception("Product does not exist");
-            if (product.Amount - amount < 0) throw new Exception("Greater than avaliable amount");
-            product.Amount -= amount;
-        }
-
-        public void AddAmount(string id, int amount)
-        {
-            Product product = _context.Products.SingleOrDefault(x => x.Id == id);
-            if (product == null) throw new Exception("Product does not exist");
-            product.Amount += amount;
         }
 
         public Product ModifyItem(Product product)
@@ -57,6 +41,12 @@ namespace ERP.Repositories
             Product Product = _context.Products.FirstOrDefault(x => x.Id == id);
             ReadProductDto dto = _mapper.Map<ReadProductDto>(Product);
             return dto;
+        }
+
+        public List<Product> ReadAll()
+        {
+            List<Product> products = _context.Products.ToList();
+            return products;
         }
 
         public void Delete(string id)

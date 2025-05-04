@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using ERP.Data.Dtos;
 using ERP.Repositories;
 using ERP.Models;
+using ERP.Models.Domain;
 
 namespace ERP.Controllers
 {
@@ -11,10 +12,12 @@ namespace ERP.Controllers
     public class InventoryController : ControllerBase
     {
         private readonly IInventoryRepository _inventoryRepository;
+        private readonly IInventoryItemRepository _inventoryItemRepository;
 
-        public InventoryController(IInventoryRepository inventoryRepository)
+        public InventoryController(IInventoryRepository inventoryRepository, IInventoryItemRepository inventoryItemRepository)
         {
             _inventoryRepository = inventoryRepository;
+            _inventoryItemRepository = inventoryItemRepository;
         }
 
         // GET <InventoryController>/5
@@ -34,6 +37,47 @@ namespace ERP.Controllers
             Inventory inventory = _inventoryRepository.Create(createInventoryDto);
             _inventoryRepository.SaveChanges();
             return Ok(inventory);
+        }
+
+        // POST <InventoryController>/InventoryItem/AddProduct
+        [HttpPost]
+        [Route("InventoryItem")]
+        [Authorize(Roles = "admin")]
+        public ActionResult<InventoryItem> AddInventoryItem(CreateInventoryItemDto createInventoryItemDto)
+        {
+            InventoryItem inventoryItem = _inventoryItemRepository.Create(createInventoryItemDto);
+            _inventoryItemRepository.SaveChanges();
+            return Ok(inventoryItem);
+        }
+
+        // GET <InventoryController>/InventoryItem/ReadAll
+        [HttpGet]
+        [Route("InventoryItem/ReadAll")]
+        [Authorize(Roles = "admin")]
+        public ActionResult<List<InventoryItem>> ReadAllInventoryItems()
+        {
+            List<InventoryItem> inventoryItems = _inventoryItemRepository.ReadAll();
+            return Ok(inventoryItems);
+        }
+
+        // DELETE <InventoryController>/InventoryItem/5
+        [HttpDelete]
+        [Route("InventoryItem/{id}")]
+        [Authorize(Roles = "admin")]
+        public ActionResult RemoveInventoryItem(string id)
+        {
+            _inventoryItemRepository.Delete(id);
+            _inventoryItemRepository.SaveChanges();
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("InventoryItem/{id}")]
+        [Authorize(Roles = "admin")]
+        public ActionResult<InventoryItem> ReadInventoryItem(string id)
+        {
+            InventoryItem inventoryItem = _inventoryItemRepository.Read(id);
+            return Ok(inventoryItem);
         }
 
         // DELETE <InventoryController>/5

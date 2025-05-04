@@ -60,17 +60,14 @@ namespace ErpTests
             _context.SaveChanges();
 
             CreateProductDto product = new CreateProductDto();
-            product.inventoryId = inventory.Id;
             product.Name = "Lorem";
             product.Description = "Description";
-            product.Amount = 10;
+            product.businessId = business.Id;
 
             CreateProductDto product2 = new CreateProductDto();
-            product2.inventoryId = inventory.Id;
             product2.Name = "Ipsum";
             product2.Description = "Description";
-            product2.Amount = 5;
-
+            product2.businessId = business.Id;
 
             // Normal product creation
             Product createdProduct = _productRepository.Create(product);
@@ -87,40 +84,11 @@ namespace ErpTests
             try
             {
                 _productRepository.Create(product);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Assert.Equal("Product already exists", ex.Message);
             }
-
-            //Subtract amount
-            _productRepository.SubtractAmount(search.Id, 5);
-            _productRepository.SaveChanges();
-
-            Assert.Equal(5, _productRepository.Read(createdProduct.Id).Amount);
-
-            //Subtract more than existing
-            try
-            {
-                _productRepository.SubtractAmount(search.Id, 10);
-            } catch (Exception ex)
-            {
-                Assert.Equal("Greater than avaliable amount", ex.Message);
-            }
-
-            //Add amount 
-            _productRepository.AddAmount(search.Id, 5);
-            _productRepository.SaveChanges();
-            Assert.Equal(10, _productRepository.Read(createdProduct.Id).Amount);
-
-            //Add with wrong id
-            try
-            {
-                _productRepository.SubtractAmount("nonExistentID", 10);
-            } catch (Exception ex)
-            {
-                Assert.Equal("Product does not exist", ex.Message);
-            }
-
         }
     }
 }

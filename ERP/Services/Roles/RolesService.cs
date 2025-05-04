@@ -15,7 +15,7 @@ namespace ERP.Services.Roles
             _roleManager = roleManager;
             _userManager = userManager;
         }
-        
+
         // Add roles to the database
         public async void Startup()
         {
@@ -24,12 +24,14 @@ namespace ERP.Services.Roles
                 "admin", "hr"
             };
 
-            foreach(string role in Roles) { 
+            foreach (string role in Roles)
+            {
                 try
                 {
                     await CreateRole(role);
                 }
-                catch (Exception ex) { 
+                catch (Exception ex)
+                {
                     Console.WriteLine(ex.ToString());
                 }
             }

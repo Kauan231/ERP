@@ -21,14 +21,13 @@ namespace ErpTests
             return business;
         }
 
-        public static Product TestProduct(string InventoryID, int initialAmount)
+        public static Product TestProduct(string businessId)
         {
-            Product product = new Product();  
-            product.Id = Guid.NewGuid().ToString(); 
+            Product product = new Product();
+            product.Id = Guid.NewGuid().ToString();
             product.Name = Guid.NewGuid().ToString();
             product.Description = Guid.NewGuid().ToString();
-            product.inventoryId = InventoryID;
-            product.Amount = initialAmount;
+            product.businessId = businessId;
             return product;
         }
 

@@ -8,7 +8,7 @@ namespace ERP.Repositories
         Shipment Receive(CreateShipmentDto createDto);
         ReadShipmentDto Read(string id);
         Shipment Send(CreateShipmentDto sendDto);
-        List<Shipment> ReadAllShipments(string id);
+        List<Shipment> ReadAllShipmentsOfAProduct(string id);
         Shipment TransferToAnotherInventory(TransferDto transferDto);
         void Delete(string id);
         void SaveChanges();

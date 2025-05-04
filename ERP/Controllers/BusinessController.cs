@@ -33,7 +33,7 @@ namespace ERP.Controllers
         // POST <BusinessController>
         [HttpPost]
         [Authorize(Roles = "admin")]
-        public ActionResult<Business> Post([FromBody] string businessName)
+        public ActionResult<Business> Post(string businessName)
         {
             var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
 

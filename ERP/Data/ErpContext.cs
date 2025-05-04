@@ -17,10 +17,10 @@ namespace ERP.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<Product>()
-                .HasOne(product => product.Inventories)
-                .WithMany(inventory => inventory.Products)
-                .HasForeignKey(product => product.inventoryId);
+            builder.Entity<InventoryItem>()
+                .HasOne(inventoryItem => inventoryItem.Inventories)
+                .WithMany(inventory => inventory.InventoryItems)
+                .HasForeignKey(inventoryItem => inventoryItem.inventoryId);
             builder.Entity<Business>()
                 .HasOne(business => business.Users)
                 .WithMany(user => user.Businesses)
@@ -42,9 +42,25 @@ namespace ERP.Data
                 .WithMany(shipment => shipment.Orders)
                 .HasForeignKey(order => order.shipmentId);
             builder.Entity<Order>()
-                .HasMany(o => o.Products)
+                .HasMany(o => o.InventoryItems)
                 .WithMany(p => p.Orders)
-                .UsingEntity(j => j.ToTable("OrderProducts"));
+                .UsingEntity(j => j.ToTable("OrderInventoryItems"));
+            builder.Entity<InventoryItem>()
+                .HasOne(InventoryItem => InventoryItem.Products)
+                .WithMany(product => product.InventoryItems)
+                .HasForeignKey(InventoryItem => InventoryItem.productId);
+            builder.Entity<Product>()
+                .HasOne(product => product.Business)
+                .WithMany(business => business.Products)
+                .HasForeignKey(product => product.businessId);
+            builder.Entity<OrderItem>()
+                .HasOne(orderItem => orderItem.Product)
+                .WithMany(product => product.OrderItems)
+                .HasForeignKey(orderItem => orderItem.productId);
+            builder.Entity<Shipment>()
+                .HasOne(shipment => shipment.Inventories)
+                .WithMany(inventory => inventory.Shipments)
+                .HasForeignKey(shipment => shipment.inventoryId);
         }
 
         public DbSet<Inventory> Inventories { get; set; }
@@ -55,5 +71,6 @@ namespace ERP.Data
         public DbSet<Client> Clients { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<InventoryItem> InventoryItems { get; set; }
     }
 }

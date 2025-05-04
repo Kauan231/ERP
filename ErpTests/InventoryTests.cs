@@ -91,8 +91,8 @@ namespace ErpTests
             Inventory createdInventory = _inventoryRepository.Create(createInventoryDto);
             _inventoryRepository.SaveChanges();
 
-            Product product = Mocks.TestProduct(createdInventory.Id, 10);
-            Product product2 = Mocks.TestProduct(createdInventory.Id, 5);
+            Product product = Mocks.TestProduct(business.Id);
+            Product product2 = Mocks.TestProduct(business.Id);
 
             _context.Products.Add(product);
             _context.Products.Add(product2);

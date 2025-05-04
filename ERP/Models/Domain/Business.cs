@@ -12,5 +12,6 @@ namespace ERP.Models.Domain
         public virtual User Users { get; set; }
         public virtual ICollection<Inventory>? Inventories { get; set; }
         public virtual ICollection<Client>? Clients { get; set; }
+        public virtual ICollection<Product>? Products { get; set; }
     }
 }

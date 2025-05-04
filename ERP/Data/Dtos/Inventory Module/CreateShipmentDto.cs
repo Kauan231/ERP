@@ -4,5 +4,6 @@
     {
         public List<CreateOrderItemDto> OrderItems { get; set; }
         public string clientId { get; set; }
+        public string inventoryId { get; set; }
     }
 }

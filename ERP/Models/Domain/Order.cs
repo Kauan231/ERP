@@ -12,6 +12,6 @@ namespace ERP.Models.Domain
         public virtual Client client { get; set; }
         public string? shipmentId { get; set; }
         public virtual Shipment Shipment { get; set; }
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<InventoryItem> InventoryItems { get; set; }
     }
 }

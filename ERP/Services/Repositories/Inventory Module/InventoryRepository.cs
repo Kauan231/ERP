@@ -28,7 +28,7 @@ namespace ERP.Repositories
 
         public ReadInventoryDto Read(string id)
         {
-            Inventory inventory = _context.Inventories.Include(inventory => inventory.Products).SingleOrDefault(inventory => inventory.Id == id);
+            Inventory inventory = _context.Inventories.Include(inventory => inventory.InventoryItems).SingleOrDefault(inventory => inventory.Id == id);
             ReadInventoryDto dto = _mapper.Map<ReadInventoryDto>(inventory);
             return dto;
         }

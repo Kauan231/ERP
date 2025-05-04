@@ -3,6 +3,7 @@ using System;
 using ERP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(ErpContext))]
-    partial class ErpContextModelSnapshot : ModelSnapshot
+    [Migration("20250503233622_AddInventoryItem")]
+    partial class AddInventoryItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.33");
@@ -196,16 +198,10 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("inventoryId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("shipmentDate")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("inventoryId");
 
                     b.ToTable("Shipments");
                 });
@@ -522,17 +518,6 @@ namespace ERP.Migrations
                     b.Navigation("Business");
                 });
 
-            modelBuilder.Entity("ERP.Models.Shipment", b =>
-                {
-                    b.HasOne("ERP.Models.Inventory", "Inventories")
-                        .WithMany("Shipments")
-                        .HasForeignKey("inventoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Inventories");
-                });
-
             modelBuilder.Entity("InventoryItemOrder", b =>
                 {
                     b.HasOne("ERP.Models.InventoryItem", null)
@@ -616,8 +601,6 @@ namespace ERP.Migrations
             modelBuilder.Entity("ERP.Models.Inventory", b =>
                 {
                     b.Navigation("InventoryItems");
-
-                    b.Navigation("Shipments");
                 });
 
             modelBuilder.Entity("ERP.Models.Product", b =>

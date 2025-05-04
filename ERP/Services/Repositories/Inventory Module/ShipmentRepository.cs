@@ -10,12 +10,12 @@ namespace ERP.Repositories
     {
         private readonly ErpContext _context;
         private readonly IMapper _mapper;
-        private readonly ProductRepository _productRepository;
+        private readonly InventoryItemRepository _inventoryItemRepository;
         public ShipmentRepository(ErpContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _productRepository = new ProductRepository(_context, _mapper);
+            _inventoryItemRepository = new InventoryItemRepository(_context, _mapper);
         }
 
         public Shipment Receive(CreateShipmentDto createDto)
@@ -25,11 +25,13 @@ namespace ERP.Repositories
             shipment.Type = "RECEIVE";
             shipment.Status = "FINISHED";
             shipment.shipmentDate = DateTime.Now;
+            shipment.inventoryId = createDto.inventoryId;
 
             List<OrderItem> orderItems = new List<OrderItem>();
             foreach (CreateOrderItemDto orderItem in createDto.OrderItems)
             {
-                _productRepository.AddAmount(orderItem.productId, orderItem.Amount);
+                _inventoryItemRepository.AddAmount(orderItem.productId, createDto.inventoryId, orderItem.Amount);
+                _inventoryItemRepository.SaveChanges();
                 OrderItem orderItemToAdd = new OrderItem();
                 orderItemToAdd.Id = Guid.NewGuid().ToString();
                 orderItemToAdd.Amount = orderItem.Amount;
@@ -57,7 +59,7 @@ namespace ERP.Repositories
             List<OrderItem> orderItems = new List<OrderItem>();
             foreach (CreateOrderItemDto orderItem in sendDto.OrderItems)
             {
-                _productRepository.SubtractAmount(orderItem.productId, orderItem.Amount);
+                _inventoryItemRepository.SubtractAmount(orderItem.productId, sendDto.inventoryId, orderItem.Amount);
                 OrderItem orderItemToAdd = new OrderItem();
                 orderItemToAdd.Id = Guid.NewGuid().ToString();
                 orderItemToAdd.Amount = orderItem.Amount;
@@ -69,15 +71,9 @@ namespace ERP.Repositories
             shipment.OrderItems = orderItems;
             _context.Shipments.Add(shipment);
 
-            List<string> productIds = sendDto.OrderItems.Select(item => item.productId).ToList();
-            List<Product> products = _context.Products
-                                            .Where(p => productIds.Contains(p.Id))
-                                            .ToList();
-
             Order orderForClient = new Order();
             orderForClient.Id = Guid.NewGuid().ToString();
             orderForClient.clientId = sendDto.clientId;
-            orderForClient.Products = products;
             orderForClient.shipmentId = shipment.Id;
             _context.Orders.Add(orderForClient);
 
@@ -86,7 +82,9 @@ namespace ERP.Repositories
 
         public Shipment TransferToAnotherInventory(TransferDto transferDto)
         {
-            _productRepository.SubtractAmount(transferDto.productId, transferDto.Amount);
+            InventoryItem inventoryItem = _context.InventoryItems.FirstOrDefault(inventoryItem => inventoryItem.productId == transferDto.productId && inventoryItem.inventoryId == transferDto.fromInventoryId);
+            if (inventoryItem == null) throw new Exception("Inventory item does not exist");
+            _inventoryItemRepository.SubtractAmount(transferDto.productId, transferDto.fromInventoryId, transferDto.Amount);
 
             var shipment = new Shipment
             {
@@ -94,7 +92,8 @@ namespace ERP.Repositories
                 Type = "TRANSFER",
                 Status = "PLACED",
                 shipmentDate = DateTime.Now,
-                OrderItems = new List<OrderItem>()
+                OrderItems = new List<OrderItem>(),
+                inventoryId = transferDto.toInventoryId
             };
 
             _context.Shipments.Add(shipment);
@@ -107,23 +106,18 @@ namespace ERP.Repositories
                 Shipment = shipment
             };
 
-            var checkInventory = _context.Products
-                .SingleOrDefault(x => x.Id == transferDto.productId && x.inventoryId == transferDto.toInventoryId);
+            var checkInventory = _context.InventoryItems
+                .SingleOrDefault(inventoryItem => inventoryItem.productId == transferDto.productId && inventoryItem.inventoryId == transferDto.toInventoryId);
 
             if (checkInventory == null)
             {
-                var originalProduct = _productRepository.Read(transferDto.productId);
-                if (originalProduct == null)
-                    throw new Exception("Cannot find original product");
+                CreateInventoryItemDto newInventoryItemDto = new CreateInventoryItemDto();
+                newInventoryItemDto.productId = transferDto.productId;
+                newInventoryItemDto.Amount = transferDto.Amount;
+                newInventoryItemDto.inventoryId = transferDto.toInventoryId;
 
-                CreateProductDto newProductDto = new CreateProductDto();
-                newProductDto.Name = originalProduct.Name;
-                newProductDto.Description = originalProduct.Description;
-                newProductDto.Amount = transferDto.Amount;
-                newProductDto.inventoryId = transferDto.toInventoryId;
-
-                var createdProduct = _productRepository.Create(newProductDto);
-                orderItem.productId = createdProduct.Id;
+                var createdProduct = _inventoryItemRepository.Create(newInventoryItemDto);
+                orderItem.productId = transferDto.productId;
             }
             else
             {
@@ -142,13 +136,13 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<Shipment> ReadAllShipments(string id)
+        public List<Shipment> ReadAllShipmentsOfAProduct(string id)
         {
             List<OrderItem> orderItemsByProductId = _context.OrderItems.Where(orderItem => orderItem.productId == id).ToList();
             List<String> shipmentsFromOrderItemsByProductId = new List<string>();
             foreach (var item in orderItemsByProductId)
             {
-                shipmentsFromOrderItemsByProductId.Add(item.productId);
+                shipmentsFromOrderItemsByProductId.Add(item.shipmentId);
             }
             List<Shipment> shipments = _context.Shipments.Where(x => shipmentsFromOrderItemsByProductId.Contains(x.Id)).ToList();
             return shipments;
@@ -161,7 +155,7 @@ namespace ERP.Repositories
             {
                 foreach (OrderItem orderItem in shipment.OrderItems)
                 {
-                    _productRepository.SubtractAmount(orderItem.productId, orderItem.Amount);
+                    _inventoryItemRepository.SubtractAmount(orderItem.productId, shipment.inventoryId, orderItem.Amount);
                 }
             }
         }

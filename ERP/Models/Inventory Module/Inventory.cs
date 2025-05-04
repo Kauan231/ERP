@@ -9,7 +9,8 @@ namespace ERP.Models
         [Required]
         public string Id { get; set; }
         public string Name { get; set; }
-        public ICollection<Product> Products { get; set; }
+        public ICollection<InventoryItem> InventoryItems { get; set; }
+        public ICollection<Shipment> Shipments { get; set; }
         public string? businessId { get; set; }
         public virtual Business Businesses { get; set; }
     }
