@@ -29,4 +29,4 @@ Sqlite
 Domain-Driven Design (DDD)
 
 ## Relationships:
-![Erp drawio](https://github.com/user-attachments/assets/698d047a-ee69-4efb-b9e7-b57214ae80f8)
+![Erp drawio2](https://github.com/user-attachments/assets/dbabd132-c1b0-41ec-89c5-957b3bef99fa)
