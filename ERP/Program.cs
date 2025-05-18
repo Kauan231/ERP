@@ -103,10 +103,23 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var MyAllowSpecificOrigins = "Frontend";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins, policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 // Services ----------------------------------------------------------------------------
 
 var app = builder.Build();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Iniciando aplicação...");

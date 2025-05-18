@@ -54,10 +54,18 @@ namespace ERP.Controllers
         [HttpGet]
         [Route("InventoryItem/ReadAll")]
         [Authorize(Roles = "admin")]
-        public ActionResult<List<InventoryItem>> ReadAllInventoryItems()
+        public ActionResult<ReadInventoryTableDto> ReadAllInventoryItems(
+            [FromQuery] List<string>? inventoryIds = null,
+            [FromQuery] int skip = 0,
+            [FromQuery] int limit = 10
+        )
         {
-            List<InventoryItem> inventoryItems = _inventoryItemRepository.ReadAll();
-            return Ok(inventoryItems);
+            List<InventoryItemDto> inventoryItems = _inventoryItemRepository.ReadAll(inventoryIds, skip, limit);
+            List<ReadInventorySimpleDto> inventories = _inventoryRepository.ReadAll();
+            ReadInventoryTableDto tableContent = new ReadInventoryTableDto();
+            tableContent.AllInventories = inventories;
+            tableContent.AllInventoryItems = inventoryItems;
+            return Ok(tableContent);
         }
 
         // DELETE <InventoryController>/InventoryItem/5

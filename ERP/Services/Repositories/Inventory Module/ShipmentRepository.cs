@@ -82,7 +82,7 @@ namespace ERP.Repositories
 
         public Shipment TransferToAnotherInventory(TransferDto transferDto)
         {
-            InventoryItem inventoryItem = _context.InventoryItems.FirstOrDefault(inventoryItem => inventoryItem.productId == transferDto.productId && inventoryItem.inventoryId == transferDto.fromInventoryId);
+            InventoryItem inventoryItem = _context.InventoryItems.FirstOrDefault(inventoryItem => inventoryItem.Id == transferDto.Id);
             if (inventoryItem == null) throw new Exception("Inventory item does not exist");
             _inventoryItemRepository.SubtractAmount(transferDto.productId, transferDto.fromInventoryId, transferDto.Amount);
 

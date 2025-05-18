@@ -54,7 +54,7 @@ namespace ERP.Controllers
                 return Unauthorized(ex.Message);
             }
             var token = await _tokenService.GenerateToken(loggedUser);
-            return Ok(token);
+            return Ok(new { token = token });
         }
 
         [HttpDelete]

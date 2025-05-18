@@ -33,6 +33,21 @@ namespace ERP.Repositories
             return dto;
         }
 
+        public List<ReadInventorySimpleDto> ReadAll()
+        {
+            List<Inventory> inventories = _context.Inventories.ToList();
+            List<ReadInventorySimpleDto> readInventories = new List<ReadInventorySimpleDto>();
+            foreach (Inventory inventory in inventories)
+            {
+                ReadInventorySimpleDto readDto = new ReadInventorySimpleDto();
+                readDto.Id = inventory.Id;
+                readDto.Name = inventory.Name;
+                readInventories.Add(readDto);
+            }
+
+            return readInventories;
+        }
+
         public List<Inventory> ReadAllBusinessInventories(string businessId)
         {
             List<Inventory> readInventoryDtos = _context.Inventories.Where(inventory => inventory.businessId == businessId).ToList();

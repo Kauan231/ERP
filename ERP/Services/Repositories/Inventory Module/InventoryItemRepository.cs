@@ -2,6 +2,7 @@
 using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Repositories
 {
@@ -66,11 +67,45 @@ namespace ERP.Repositories
             return inventoryItem;
         }
 
-        public List<InventoryItem> ReadAll()
+        public List<InventoryItemDto> ReadAll(List<string>? inventoryIds = null, int skip = 0, int limit = 10)
         {
-            List<InventoryItem> inventoryItems = _context.InventoryItems.ToList();
-            return inventoryItems;
+            IQueryable<InventoryItem> query = _context.InventoryItems
+                .Include(i => i.Products)
+                .Include(i => i.Inventories);
+
+            // Filtro por lista de IDs de inventário
+            if (inventoryIds != null && inventoryIds.Any())
+            {
+                query = query.Where(i => inventoryIds.Contains(i.Inventories.Id));
+            }
+
+            // Paginação
+            List<InventoryItem> inventoryItems = query
+                .Skip(skip)
+                .Take(limit)
+                .ToList();
+
+            // Mapeamento para DTOs
+            List<InventoryItemDto> dtos = inventoryItems.Select(item => new InventoryItemDto
+            {
+                Id = item.Id,
+                Amount = item.Amount,
+                Product = new ReadProductDto
+                {
+                    Id = item.Products?.Id,
+                    Name = item.Products?.Name,
+                    Description = item.Products?.Description
+                },
+                Inventory = new ReadInventorySimpleDto
+                {
+                    Id = item.Inventories?.Id,
+                    Name = item.Inventories?.Name
+                }
+            }).ToList();
+
+            return dtos;
         }
+
 
         public void Delete(string id)
         {

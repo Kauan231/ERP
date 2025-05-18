@@ -10,6 +10,8 @@ namespace ERP.Data.Dtos
         [Required]
         public string productId { get; set; }
         [Required]
+        public string Id { get; set; }
+        [Required]
         public string toInventoryId { get; set; }
         [Required]
         public string fromInventoryId { get; set; }

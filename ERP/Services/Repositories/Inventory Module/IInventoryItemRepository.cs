@@ -8,7 +8,7 @@ namespace ERP.Repositories
         void SaveChanges();
         InventoryItem Create(CreateInventoryItemDto product);
         InventoryItem Read(string id);
-        List<InventoryItem> ReadAll();
+        List<InventoryItemDto> ReadAll(List<string>? inventoryIds, int skip, int limit);
         void Delete(string id);
     }
 }
