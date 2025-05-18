@@ -60,11 +60,12 @@ namespace ERP.Controllers
             [FromQuery] int limit = 10
         )
         {
-            List<InventoryItemDto> inventoryItems = _inventoryItemRepository.ReadAll(inventoryIds, skip, limit);
+            ReadInventoryTableDto inventoryItems = _inventoryItemRepository.ReadAll(inventoryIds, skip, limit);
             List<ReadInventorySimpleDto> inventories = _inventoryRepository.ReadAll();
             ReadInventoryTableDto tableContent = new ReadInventoryTableDto();
             tableContent.AllInventories = inventories;
-            tableContent.AllInventoryItems = inventoryItems;
+            tableContent.AllInventoryItems = inventoryItems.AllInventoryItems;
+            tableContent.totalOfItems = inventoryItems.totalOfItems;
             return Ok(tableContent);
         }
 

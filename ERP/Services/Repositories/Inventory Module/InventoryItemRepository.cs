@@ -67,7 +67,7 @@ namespace ERP.Repositories
             return inventoryItem;
         }
 
-        public List<InventoryItemDto> ReadAll(List<string>? inventoryIds = null, int skip = 0, int limit = 10)
+        public ReadInventoryTableDto ReadAll(List<string>? inventoryIds = null, int skip = 0, int limit = 10)
         {
             IQueryable<InventoryItem> query = _context.InventoryItems
                 .Include(i => i.Products)
@@ -102,8 +102,11 @@ namespace ERP.Repositories
                     Name = item.Inventories?.Name
                 }
             }).ToList();
+            ReadInventoryTableDto readInventoryTableDto = new ReadInventoryTableDto();
+            readInventoryTableDto.totalOfItems = query.Where(inventoryItem => inventoryItem.Amount > 0).Count();
+            readInventoryTableDto.AllInventoryItems = dtos;
 
-            return dtos;
+            return readInventoryTableDto;
         }
 
 

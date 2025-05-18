@@ -15,12 +15,12 @@
 
         public ReadProductDto Product { get; set; }
         public ReadInventorySimpleDto Inventory { get; set; }
-
     }
 
     public class ReadInventoryTableDto
     {
         public List<InventoryItemDto> AllInventoryItems { get; set; }
         public List<ReadInventorySimpleDto> AllInventories { get; set; }
+        public int totalOfItems { get; set; }
     }
 }
