@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Models;
@@ -49,9 +50,20 @@ namespace ERP.Repositories
             return products;
         }
 
+        public List<Product> ReadAllWithFilter(string name, int skip = 0, int limit = 10)
+        {
+            List<Product> products = _context.Products.Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Skip(skip).Take(limit).ToList();
+            return products;
+        }
+
         public int Count()
         {
             return _context.Products.Count();
+        }
+
+        public int CountWithFilter(string name)
+        {
+            return _context.Products.Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Count();
         }
 
         public void Delete(string id)

@@ -21,13 +21,26 @@ namespace ERP.Controllers
         // GET <ProductController>
         [HttpGet]
         public ActionResult<ReadProductTableDto> ReadAll(
+            [FromQuery] string? search = "",
             [FromQuery] int skip = 0,
             [FromQuery] int limit = 10
         )
         {
-            List<Product> products = _productRepository.ReadAll(skip, limit);
+            List<Product> products = new List<Product>();
+            int count;
+            if (search?.Length > 0)
+            {
+                products = _productRepository.ReadAllWithFilter(search, skip, limit);
+                count = _productRepository.CountWithFilter(search);
+            }
+            else
+            {
+                products = _productRepository.ReadAll(skip, limit);
+                count = _productRepository.Count();
+            }
+
             ReadProductTableDto tableContent = new ReadProductTableDto();
-            int count = _productRepository.Count();
+
             tableContent.AllProducts = products;
             tableContent.totalOfItems = count;
 
