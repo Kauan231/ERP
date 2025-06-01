@@ -20,10 +20,18 @@ namespace ERP.Controllers
 
         // GET <ProductController>
         [HttpGet]
-        public ActionResult<List<Product>> ReadAll()
+        public ActionResult<ReadProductTableDto> ReadAll(
+            [FromQuery] int skip = 0,
+            [FromQuery] int limit = 10
+        )
         {
-            List<Product> products = _productRepository.ReadAll();
-            return Ok(products);
+            List<Product> products = _productRepository.ReadAll(skip, limit);
+            ReadProductTableDto tableContent = new ReadProductTableDto();
+            int count = _productRepository.Count();
+            tableContent.AllProducts = products;
+            tableContent.totalOfItems = count;
+
+            return Ok(tableContent);
         }
 
         // GET <ProductController>/5

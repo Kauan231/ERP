@@ -43,10 +43,15 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<Product> ReadAll()
+        public List<Product> ReadAll(int skip = 0, int limit = 10)
         {
-            List<Product> products = _context.Products.ToList();
+            List<Product> products = _context.Products.Skip(skip).Take(limit).ToList();
             return products;
+        }
+
+        public int Count()
+        {
+            return _context.Products.Count();
         }
 
         public void Delete(string id)

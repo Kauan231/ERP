@@ -8,7 +8,8 @@ namespace ERP.Repositories
         void SaveChanges();
         Product Create(CreateProductDto product);
         ReadProductDto Read(string id);
-        List<Product> ReadAll();
+        List<Product> ReadAll(int skip = 0, int limit = 10);
+        int Count();
         void Delete(string id);
     }
 }
