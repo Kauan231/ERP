@@ -57,10 +57,11 @@ namespace ERP.Controllers
         public ActionResult<ReadInventoryTableDto> ReadAllInventoryItems(
             [FromQuery] List<string>? inventoryIds = null,
             [FromQuery] int skip = 0,
-            [FromQuery] int limit = 10
+            [FromQuery] int limit = 10,
+            [FromQuery] string? search = ""
         )
         {
-            ReadInventoryTableDto inventoryItems = _inventoryItemRepository.ReadAll(inventoryIds, skip, limit);
+            ReadInventoryTableDto inventoryItems = _inventoryItemRepository.ReadAll(search, inventoryIds, skip, limit);
             List<ReadInventorySimpleDto> inventories = _inventoryRepository.ReadAll();
             ReadInventoryTableDto tableContent = new ReadInventoryTableDto();
             tableContent.AllInventories = inventories;

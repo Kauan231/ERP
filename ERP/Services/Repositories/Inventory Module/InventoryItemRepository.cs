@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ERP.Data;
 using ERP.Data.Dtos;
+using ERP.Migrations;
 using ERP.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -67,11 +68,19 @@ namespace ERP.Repositories
             return inventoryItem;
         }
 
-        public ReadInventoryTableDto ReadAll(List<string>? inventoryIds = null, int skip = 0, int limit = 10)
+        public ReadInventoryTableDto ReadAll(string productName = "", List<string>? inventoryIds = null, int skip = 0, int limit = 10)
         {
             IQueryable<InventoryItem> query = _context.InventoryItems
+                                                .Include(i => i.Products)
+                                                .Include(i => i.Inventories);
+
+            if (!string.IsNullOrEmpty(productName))
+            {
+                query = _context.InventoryItems
                 .Include(i => i.Products)
-                .Include(i => i.Inventories);
+                .Include(i => i.Inventories)
+                .Where(invItem => EF.Functions.Like(invItem.Products.Name, $"%{productName}%"));
+            }
 
             // Filtro por lista de IDs de inventário
             if (inventoryIds != null && inventoryIds.Any())
