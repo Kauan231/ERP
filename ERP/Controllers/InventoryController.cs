@@ -99,5 +99,15 @@ namespace ERP.Controllers
             _inventoryRepository.SaveChanges();
             return Ok();
         }
+
+        // DELETE <InventoryController>/5
+        [HttpPost("InventoryItem/DeleteMany")]
+        [Authorize(Roles = "admin")]
+        public ActionResult DeleteMany(string[] idsToDelete)
+        {
+            _inventoryItemRepository.DeleteMany(idsToDelete);
+            _inventoryItemRepository.SaveChanges();
+            return Ok();
+        }
     }
 }

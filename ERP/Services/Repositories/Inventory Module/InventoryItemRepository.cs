@@ -128,6 +128,15 @@ namespace ERP.Repositories
             }
         }
 
+        public void DeleteMany(string[] idsToDelete)
+        {
+            var items = _context.InventoryItems
+                            .Where(p => idsToDelete.Contains(p.Id))
+                            .ToList();
+
+            _context.InventoryItems.RemoveRange(items);
+        }
+
         public void SaveChanges()
         {
             _context.SaveChanges();

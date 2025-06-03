@@ -10,5 +10,6 @@ namespace ERP.Repositories
         InventoryItem Read(string id);
         ReadInventoryTableDto ReadAll(string productName = "", List<string>? inventoryIds = null, int skip = 0, int limit = 10);
         void Delete(string id);
+        void DeleteMany(string[] idsToDelete);
     }
 }
