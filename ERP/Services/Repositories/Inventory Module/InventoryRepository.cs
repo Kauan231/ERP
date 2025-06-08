@@ -33,6 +33,16 @@ namespace ERP.Repositories
             return dto;
         }
 
+        public List<ReadInventoryDto> Read(string search, int skip, int limit)
+        {
+            List<Inventory> inventories = _context.Inventories.Where(inventory => EF.Functions.Like(inventory.Name, $"%{search}%"))
+                .Skip(skip)
+                .Take(limit)
+                .ToList();
+            List<ReadInventoryDto> dtoList = _mapper.Map<List<ReadInventoryDto>>(inventories);
+            return dtoList;
+        }
+
         public List<ReadInventorySimpleDto> ReadAll()
         {
             List<Inventory> inventories = _context.Inventories.ToList();

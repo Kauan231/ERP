@@ -9,6 +9,7 @@ namespace ERP.Repositories
         void SaveChanges();
         Inventory Create(CreateInventoryDto inventory);
         ReadInventoryDto Read(string id);
+        List<ReadInventoryDto> Read(string search, int skip, int limit);
         List<ReadInventorySimpleDto> ReadAll();
         void Delete(string id);
         List<Inventory> ReadAllBusinessInventories(string businessId);

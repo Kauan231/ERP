@@ -21,6 +21,19 @@ namespace ERP.Controllers
         }
 
         // GET <InventoryController>/5
+        [HttpGet]
+        [Authorize]
+        public ActionResult<List<ReadInventoryDto>> Get(
+            [FromQuery] int skip = 0,
+            [FromQuery] int limit = 10,
+            [FromQuery] string? search = ""
+        )
+        {
+            List<ReadInventoryDto> readInventoriesDto = _inventoryRepository.Read(search, skip, limit);
+            return readInventoriesDto;
+        }
+
+        // GET <InventoryController>/5
         [HttpGet("{id}")]
         [Authorize]
         public ActionResult<ReadInventoryDto> Get(string id)
