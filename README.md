@@ -2,6 +2,10 @@
 
 This project is part of my ongoing efforts to strengthen my skills in ASP.NET, while deepening my understanding of business logic, requirements engineering, and software design through Domain-Driven Design (DDD).
 
+🔗 Frontend Repository:
+View the user interface and client-side logic:
+[Frontend Repository](https://github.com/Kauan231/ERP-Frontend)
+
 ## 🧠 Objectives
 Apply real-world business rules and scenarios using DDD.
 
