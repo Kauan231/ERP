@@ -26,17 +26,20 @@ namespace ERP.Controllers
             [FromQuery] int limit = 10
         )
         {
+            var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
+            var userId = userIdClaim.Value;
+
             List<Product> products = new List<Product>();
             int count;
             if (search?.Length > 0)
             {
-                products = _productRepository.ReadAllWithFilter(search, skip, limit);
-                count = _productRepository.CountWithFilter(search);
+                products = _productRepository.ReadAllWithFilter(userId, search, skip, limit);
+                count = _productRepository.CountWithFilter(userId, search);
             }
             else
             {
-                products = _productRepository.ReadAll(skip, limit);
-                count = _productRepository.Count();
+                products = _productRepository.ReadAll(userId, skip, limit);
+                count = _productRepository.Count(userId);
             }
 
             ReadProductTableDto tableContent = new ReadProductTableDto();

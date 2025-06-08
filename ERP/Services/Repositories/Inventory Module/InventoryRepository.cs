@@ -2,6 +2,7 @@
 using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Data.Dtos.Domain;
+using ERP.Migrations;
 using ERP.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,9 +34,18 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<ReadInventoryDto> Read(string search, int skip, int limit)
+        public List<ReadInventoryDto> Read(string userId, string search, int skip, int limit)
         {
-            List<Inventory> inventories = _context.Inventories.Where(inventory => EF.Functions.Like(inventory.Name, $"%{search}%"))
+            var userBusinessIds = _context.Users
+            .Include(u => u.Businesses)
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.Businesses.Select(b => b.Id))
+            .ToList();
+
+            List<Inventory> inventories = _context.Inventories
+                .Include(inv => inv.Businesses)
+                .Where(i => userBusinessIds.Contains(i.Businesses.Id))
+                .Where(inventory => EF.Functions.Like(inventory.Name, $"%{search}%"))
                 .Skip(skip)
                 .Take(limit)
                 .ToList();
@@ -43,9 +53,19 @@ namespace ERP.Repositories
             return dtoList;
         }
 
-        public List<ReadInventorySimpleDto> ReadAll()
+        public List<ReadInventorySimpleDto> ReadAll(string userId)
         {
-            List<Inventory> inventories = _context.Inventories.ToList();
+            var userBusinessIds = _context.Users
+            .Include(u => u.Businesses)
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.Businesses.Select(b => b.Id))
+            .ToList();
+
+            List<Inventory> inventories = _context.Inventories
+            .Include(inv => inv.Businesses)
+            .Where(i => userBusinessIds.Contains(i.Businesses.Id))
+            .ToList();
+
             List<ReadInventorySimpleDto> readInventories = new List<ReadInventorySimpleDto>();
             foreach (Inventory inventory in inventories)
             {
@@ -66,12 +86,49 @@ namespace ERP.Repositories
 
         public void Delete(string id)
         {
-            Inventory inventory = _context.Inventories.SingleOrDefault(x => x.Id == id);
+            var inventory = _context.Inventories
+                .Include(i => i.InventoryItems)
+                .Include(i => i.Shipments)
+                    .ThenInclude(s => s.Orders)
+                .Include(i => i.Shipments)
+                    .ThenInclude(s => s.OrderItems)
+                .SingleOrDefault(x => x.Id == id);
+
             if (inventory != null)
             {
+                inventory.businessId = null;
+
+                if (inventory.InventoryItems != null && inventory.InventoryItems.Any())
+                {
+                    _context.InventoryItems.RemoveRange(inventory.InventoryItems);
+                }
+
+                if (inventory.Shipments != null && inventory.Shipments.Any())
+                {
+                    // Remove OrderItems relacionados
+                    foreach (var shipment in inventory.Shipments)
+                    {
+                        if (shipment.OrderItems != null && shipment.OrderItems.Any())
+                        {
+                            _context.OrderItems.RemoveRange(shipment.OrderItems);
+                        }
+
+                        // Remove Orders relacionados
+                        if (shipment.Orders != null && shipment.Orders.Any())
+                        {
+                            _context.Orders.RemoveRange(shipment.Orders);
+                        }
+                    }
+
+                    _context.Shipments.RemoveRange(inventory.Shipments);
+                }
+
                 _context.Inventories.Remove(inventory);
+                _context.SaveChanges();
             }
         }
+
+
 
         public void SaveChanges()
         {

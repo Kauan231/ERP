@@ -20,7 +20,8 @@ namespace ERP.Data
             builder.Entity<InventoryItem>()
                 .HasOne(inventoryItem => inventoryItem.Inventories)
                 .WithMany(inventory => inventory.InventoryItems)
-                .HasForeignKey(inventoryItem => inventoryItem.inventoryId);
+                .HasForeignKey(inventoryItem => inventoryItem.inventoryId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Business>()
                 .HasOne(business => business.Users)
                 .WithMany(user => user.Businesses)
@@ -28,7 +29,8 @@ namespace ERP.Data
             builder.Entity<Inventory>()
                 .HasOne(inventory => inventory.Businesses)
                 .WithMany(business => business.Inventories)
-                .HasForeignKey(inventory => inventory.businessId);
+                .HasForeignKey(inventory => inventory.businessId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Shipment>()
                 .HasMany(shipment => shipment.OrderItems)
                 .WithOne(orderItem => orderItem.Shipment)
@@ -40,7 +42,8 @@ namespace ERP.Data
             builder.Entity<Order>()
                 .HasOne(order => order.Shipment)
                 .WithMany(shipment => shipment.Orders)
-                .HasForeignKey(order => order.shipmentId);
+                .HasForeignKey(order => order.shipmentId)
+                .OnDelete(DeleteBehavior.Cascade);
             builder.Entity<Order>()
                 .HasMany(o => o.InventoryItems)
                 .WithMany(p => p.Orders)
@@ -58,9 +61,10 @@ namespace ERP.Data
                 .WithMany(product => product.OrderItems)
                 .HasForeignKey(orderItem => orderItem.productId);
             builder.Entity<Shipment>()
-                .HasOne(shipment => shipment.Inventories)
+                .HasOne(shipment => shipment.Inventory)
                 .WithMany(inventory => inventory.Shipments)
-                .HasForeignKey(shipment => shipment.inventoryId);
+                .HasForeignKey(shipment => shipment.inventoryId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Inventory> Inventories { get; set; }

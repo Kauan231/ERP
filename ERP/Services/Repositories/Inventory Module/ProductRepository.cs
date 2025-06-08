@@ -19,7 +19,7 @@ namespace ERP.Repositories
         public Product Create(CreateProductDto createDto)
         {
             Product product = _mapper.Map<Product>(createDto);
-            Product productSearch = _context.Products.SingleOrDefault(product => product.Name == createDto.Name);
+            Product productSearch = _context.Products.SingleOrDefault(product => product.Name == createDto.Name && product.businessId == createDto.businessId);
             if (productSearch != null) throw new Exception("Product already exists");
 
             var guid = Guid.NewGuid().ToString();
@@ -44,26 +44,62 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<Product> ReadAll(int skip = 0, int limit = 10)
+        public List<Product> ReadAll(string userId, int skip = 0, int limit = 10)
         {
-            List<Product> products = _context.Products.Skip(skip).Take(limit).ToList();
+            var userBusinessIds = _context.Users
+           .Include(u => u.Businesses)
+           .Where(u => u.Id == userId)
+           .SelectMany(u => u.Businesses.Select(b => b.Id))
+           .ToList();
+
+            List<Product> products = _context.Products
+            .Include(product => product.Business)
+            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Skip(skip).Take(limit).ToList();
             return products;
         }
 
-        public List<Product> ReadAllWithFilter(string name, int skip = 0, int limit = 10)
+        public List<Product> ReadAllWithFilter(string userId, string name, int skip = 0, int limit = 10)
         {
-            List<Product> products = _context.Products.Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Skip(skip).Take(limit).ToList();
+            var userBusinessIds = _context.Users
+           .Include(u => u.Businesses)
+           .Where(u => u.Id == userId)
+           .SelectMany(u => u.Businesses.Select(b => b.Id))
+           .ToList();
+
+            List<Product> products = _context.Products
+            .Include(product => product.Business)
+            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Skip(skip).Take(limit).ToList();
             return products;
         }
 
-        public int Count()
+        public int Count(string userId)
         {
-            return _context.Products.Count();
+            var userBusinessIds = _context.Users
+           .Include(u => u.Businesses)
+           .Where(u => u.Id == userId)
+           .SelectMany(u => u.Businesses.Select(b => b.Id))
+           .ToList();
+
+            return _context.Products
+            .Include(product => product.Business)
+            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Count();
         }
 
-        public int CountWithFilter(string name)
+        public int CountWithFilter(string userId, string name)
         {
-            return _context.Products.Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Count();
+            var userBusinessIds = _context.Users
+           .Include(u => u.Businesses)
+           .Where(u => u.Id == userId)
+           .SelectMany(u => u.Businesses.Select(b => b.Id))
+           .ToList();
+
+            return _context.Products
+            .Include(product => product.Business)
+            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Count();
         }
 
         public void Delete(string id)

@@ -3,6 +3,7 @@ using System;
 using ERP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(ErpContext))]
-    partial class ErpContextModelSnapshot : ModelSnapshot
+    [Migration("20250608211305_removeInventory")]
+    partial class removeInventory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.33");
@@ -486,7 +488,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Domain.Business", "Businesses")
                         .WithMany("Inventories")
                         .HasForeignKey("businessId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("Businesses");
@@ -524,13 +526,13 @@ namespace ERP.Migrations
 
             modelBuilder.Entity("ERP.Models.Shipment", b =>
                 {
-                    b.HasOne("ERP.Models.Inventory", "Inventory")
+                    b.HasOne("ERP.Models.Inventory", "Inventories")
                         .WithMany("Shipments")
                         .HasForeignKey("inventoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Inventory");
+                    b.Navigation("Inventories");
                 });
 
             modelBuilder.Entity("InventoryItemOrder", b =>

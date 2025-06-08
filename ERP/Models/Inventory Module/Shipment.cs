@@ -13,7 +13,7 @@ namespace ERP.Models
         public DateTime shipmentDate { get; set; }
         public virtual ICollection<OrderItem>? OrderItems { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
-        public virtual string inventoryId { get; set; }
-        public virtual Inventory Inventories { get; set; }
+        public string inventoryId { get; set; }
+        public virtual Inventory Inventory { get; set; }
     }
 }

@@ -68,33 +68,36 @@ namespace ERP.Repositories
             return inventoryItem;
         }
 
-        public ReadInventoryTableDto ReadAll(string productName = "", List<string>? inventoryIds = null, int skip = 0, int limit = 10)
+        public ReadInventoryTableDto ReadAll(string userId, string productName = "", List<string>? inventoryIds = null, int skip = 0, int limit = 10)
         {
+            var userBusinessIds = _context.Users
+            .Include(u => u.Businesses)
+            .Where(u => u.Id == userId)
+            .SelectMany(u => u.Businesses.Select(b => b.Id))
+            .ToList();
+
             IQueryable<InventoryItem> query = _context.InventoryItems
                                                 .Include(i => i.Products)
-                                                .Include(i => i.Inventories);
+                                                .Include(i => i.Inventories)
+                                                .ThenInclude(inv => inv.Businesses)
+                                                .Where(i => userBusinessIds.Contains(i.Inventories.Businesses.Id));
 
             if (!string.IsNullOrEmpty(productName))
             {
-                query = _context.InventoryItems
-                .Include(i => i.Products)
-                .Include(i => i.Inventories)
-                .Where(invItem => EF.Functions.Like(invItem.Products.Name, $"%{productName}%"));
+                query = query.Where(invItem => EF.Functions.Like(invItem.Products.Name, $"%{productName}%"));
             }
 
-            // Filtro por lista de IDs de inventário
             if (inventoryIds != null && inventoryIds.Any())
             {
                 query = query.Where(i => inventoryIds.Contains(i.Inventories.Id));
             }
 
-            // Paginação
             List<InventoryItem> inventoryItems = query
                 .Skip(skip)
                 .Take(limit)
                 .ToList();
 
-            // Mapeamento para DTOs
+
             List<InventoryItemDto> dtos = inventoryItems.Select(item => new InventoryItemDto
             {
                 Id = item.Id,

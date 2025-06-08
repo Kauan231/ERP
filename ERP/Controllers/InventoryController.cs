@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using ERP.Data.Dtos;
 using ERP.Repositories;
 using ERP.Models;
-using ERP.Models.Domain;
 
 namespace ERP.Controllers
 {
@@ -29,7 +28,10 @@ namespace ERP.Controllers
             [FromQuery] string? search = ""
         )
         {
-            List<ReadInventoryDto> readInventoriesDto = _inventoryRepository.Read(search, skip, limit);
+            var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
+            var userId = userIdClaim.Value;
+
+            List<ReadInventoryDto> readInventoriesDto = _inventoryRepository.Read(userId, search, skip, limit);
             return readInventoriesDto;
         }
 
@@ -74,8 +76,11 @@ namespace ERP.Controllers
             [FromQuery] string? search = ""
         )
         {
-            ReadInventoryTableDto inventoryItems = _inventoryItemRepository.ReadAll(search, inventoryIds, skip, limit);
-            List<ReadInventorySimpleDto> inventories = _inventoryRepository.ReadAll();
+            var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
+            var userId = userIdClaim.Value;
+
+            List<ReadInventorySimpleDto> inventories = _inventoryRepository.ReadAll(userId);
+            ReadInventoryTableDto inventoryItems = _inventoryItemRepository.ReadAll(userId, search, inventoryIds, skip, limit);
             ReadInventoryTableDto tableContent = new ReadInventoryTableDto();
             tableContent.AllInventories = inventories;
             tableContent.AllInventoryItems = inventoryItems.AllInventoryItems;
