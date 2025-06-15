@@ -68,19 +68,13 @@ namespace ERP.Repositories
             return inventoryItem;
         }
 
-        public ReadInventoryTableDto ReadAll(string userId, string productName = "", List<string>? inventoryIds = null, int skip = 0, int limit = 10)
+        public ReadInventoryTableDto ReadAll(string businessId, string productName = "", List<string>? inventoryIds = null, int skip = 0, int limit = 10)
         {
-            var userBusinessIds = _context.Users
-            .Include(u => u.Businesses)
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.Businesses.Select(b => b.Id))
-            .ToList();
-
             IQueryable<InventoryItem> query = _context.InventoryItems
                                                 .Include(i => i.Products)
                                                 .Include(i => i.Inventories)
                                                 .ThenInclude(inv => inv.Businesses)
-                                                .Where(i => userBusinessIds.Contains(i.Inventories.Businesses.Id));
+                                                .Where(i => i.Inventories.Businesses.Id.Equals(businessId));
 
             if (!string.IsNullOrEmpty(productName))
             {

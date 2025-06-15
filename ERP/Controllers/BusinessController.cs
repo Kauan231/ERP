@@ -81,9 +81,14 @@ namespace ERP.Controllers
 
         [HttpGet("{Id}/Clients")]
         [Authorize(Roles = "admin")]
-        public ActionResult<List<Client>> ReadAllClients([FromRoute] string Id)
+        public ActionResult<ReadAllClientDto> ReadAllClients(
+                [FromRoute] string Id,
+                [FromQuery] int skip = 0,
+                [FromQuery] int limit = 10,
+                [FromQuery] string? search = ""
+            )
         {
-            List<Client> clients = _clientRepository.ReadAllBusinessClients(Id);
+            ReadAllClientDto clients = _clientRepository.ReadAllBusinessClients(Id, skip, limit, search);
             return Ok(clients);
         }
 

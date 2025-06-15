@@ -9,7 +9,7 @@ namespace ERP.Repositories
         void SaveChanges();
         Client Create(CreateClientDto client);
         ReadClientDto Read(string id);
-        List<Client> ReadAllBusinessClients(string Id);
+        ReadAllClientDto ReadAllBusinessClients(string Id, int skip, int limit, string search);
         void Delete(string id);
     }
 }

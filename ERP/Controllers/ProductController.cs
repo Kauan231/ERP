@@ -21,25 +21,24 @@ namespace ERP.Controllers
         // GET <ProductController>
         [HttpGet]
         public ActionResult<ReadProductTableDto> ReadAll(
+            [FromQuery] string? businessId = "",
             [FromQuery] string? search = "",
             [FromQuery] int skip = 0,
             [FromQuery] int limit = 10
         )
         {
-            var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
-            var userId = userIdClaim.Value;
 
-            List<Product> products = new List<Product>();
+            List<Product> products;
             int count;
             if (search?.Length > 0)
             {
-                products = _productRepository.ReadAllWithFilter(userId, search, skip, limit);
-                count = _productRepository.CountWithFilter(userId, search);
+                products = _productRepository.ReadAllWithFilter(businessId, search, skip, limit);
+                count = _productRepository.CountWithFilter(businessId, search);
             }
             else
             {
-                products = _productRepository.ReadAll(userId, skip, limit);
-                count = _productRepository.Count(userId);
+                products = _productRepository.ReadAll(businessId, skip, limit);
+                count = _productRepository.Count(businessId);
             }
 
             ReadProductTableDto tableContent = new ReadProductTableDto();

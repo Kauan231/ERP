@@ -37,10 +37,20 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<Client> ReadAllBusinessClients(string Id)
+        public ReadAllClientDto ReadAllBusinessClients(string Id, int skip, int limit, string search)
         {
-            List<Client> clients = _context.Clients.Where(x => x.businessId == Id).ToList();
-            return clients;
+            IQueryable<Client> query = _context.Clients.Where(x => x.businessId == Id);
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(client => EF.Functions.Like(client.Name, $"%{search}%"));
+            }
+            int totalOfItems = _context.Clients.Where(x => x.businessId == Id).Count();
+
+            List<Client> clients = query.Skip(skip).Take(limit).ToList();
+            ReadAllClientDto readAllClientDto = new ReadAllClientDto();
+            readAllClientDto.clients = clients;
+            readAllClientDto.totalOfItems = totalOfItems;
+            return readAllClientDto;
         }
 
         public void Delete(string clientId)

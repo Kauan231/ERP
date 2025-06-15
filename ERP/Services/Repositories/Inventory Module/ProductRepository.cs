@@ -44,61 +44,37 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<Product> ReadAll(string userId, int skip = 0, int limit = 10)
+        public List<Product> ReadAll(string businessId, int skip = 0, int limit = 10)
         {
-            var userBusinessIds = _context.Users
-           .Include(u => u.Businesses)
-           .Where(u => u.Id == userId)
-           .SelectMany(u => u.Businesses.Select(b => b.Id))
-           .ToList();
-
             List<Product> products = _context.Products
             .Include(product => product.Business)
-            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Where(i => i.Business.Id.Equals(businessId))
             .Skip(skip).Take(limit).ToList();
             return products;
         }
 
-        public List<Product> ReadAllWithFilter(string userId, string name, int skip = 0, int limit = 10)
+        public List<Product> ReadAllWithFilter(string businessId, string name, int skip = 0, int limit = 10)
         {
-            var userBusinessIds = _context.Users
-           .Include(u => u.Businesses)
-           .Where(u => u.Id == userId)
-           .SelectMany(u => u.Businesses.Select(b => b.Id))
-           .ToList();
-
             List<Product> products = _context.Products
             .Include(product => product.Business)
-            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Where(i => i.Business.Id.Equals(businessId))
             .Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Skip(skip).Take(limit).ToList();
             return products;
         }
 
-        public int Count(string userId)
+        public int Count(string businessId)
         {
-            var userBusinessIds = _context.Users
-           .Include(u => u.Businesses)
-           .Where(u => u.Id == userId)
-           .SelectMany(u => u.Businesses.Select(b => b.Id))
-           .ToList();
-
             return _context.Products
             .Include(product => product.Business)
-            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Where(i => i.Business.Id.Equals(businessId))
             .Count();
         }
 
-        public int CountWithFilter(string userId, string name)
+        public int CountWithFilter(string businessId, string name)
         {
-            var userBusinessIds = _context.Users
-           .Include(u => u.Businesses)
-           .Where(u => u.Id == userId)
-           .SelectMany(u => u.Businesses.Select(b => b.Id))
-           .ToList();
-
             return _context.Products
             .Include(product => product.Business)
-            .Where(i => userBusinessIds.Contains(i.Business.Id))
+            .Where(i => i.Business.Id.Equals(businessId))
             .Where(product => EF.Functions.Like(product.Name, $"%{name}%")).Count();
         }
 

@@ -34,17 +34,11 @@ namespace ERP.Repositories
             return dto;
         }
 
-        public List<ReadInventoryDto> Read(string userId, string search, int skip, int limit)
+        public List<ReadInventoryDto> Read(string businessId, string? search, int skip, int limit)
         {
-            var userBusinessIds = _context.Users
-            .Include(u => u.Businesses)
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.Businesses.Select(b => b.Id))
-            .ToList();
-
             List<Inventory> inventories = _context.Inventories
                 .Include(inv => inv.Businesses)
-                .Where(i => userBusinessIds.Contains(i.Businesses.Id))
+                .Where(i => i.Businesses.Id.Equals(businessId))
                 .Where(inventory => EF.Functions.Like(inventory.Name, $"%{search}%"))
                 .Skip(skip)
                 .Take(limit)
@@ -53,17 +47,11 @@ namespace ERP.Repositories
             return dtoList;
         }
 
-        public List<ReadInventorySimpleDto> ReadAll(string userId)
+        public List<ReadInventorySimpleDto> ReadAll(string businessId)
         {
-            var userBusinessIds = _context.Users
-            .Include(u => u.Businesses)
-            .Where(u => u.Id == userId)
-            .SelectMany(u => u.Businesses.Select(b => b.Id))
-            .ToList();
-
             List<Inventory> inventories = _context.Inventories
             .Include(inv => inv.Businesses)
-            .Where(i => userBusinessIds.Contains(i.Businesses.Id))
+            .Where(i => i.Businesses.Id.Equals(businessId))
             .ToList();
 
             List<ReadInventorySimpleDto> readInventories = new List<ReadInventorySimpleDto>();
@@ -105,7 +93,6 @@ namespace ERP.Repositories
 
                 if (inventory.Shipments != null && inventory.Shipments.Any())
                 {
-                    // Remove OrderItems relacionados
                     foreach (var shipment in inventory.Shipments)
                     {
                         if (shipment.OrderItems != null && shipment.OrderItems.Any())
@@ -113,7 +100,6 @@ namespace ERP.Repositories
                             _context.OrderItems.RemoveRange(shipment.OrderItems);
                         }
 
-                        // Remove Orders relacionados
                         if (shipment.Orders != null && shipment.Orders.Any())
                         {
                             _context.Orders.RemoveRange(shipment.Orders);

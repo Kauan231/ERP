@@ -23,15 +23,13 @@ namespace ERP.Controllers
         [HttpGet]
         [Authorize]
         public ActionResult<List<ReadInventoryDto>> Get(
+            [FromQuery] string businessId = "",
             [FromQuery] int skip = 0,
             [FromQuery] int limit = 10,
             [FromQuery] string? search = ""
         )
         {
-            var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
-            var userId = userIdClaim.Value;
-
-            List<ReadInventoryDto> readInventoriesDto = _inventoryRepository.Read(userId, search, skip, limit);
+            List<ReadInventoryDto> readInventoriesDto = _inventoryRepository.Read(businessId, search, skip, limit);
             return readInventoriesDto;
         }
 
@@ -71,16 +69,14 @@ namespace ERP.Controllers
         [Authorize(Roles = "admin")]
         public ActionResult<ReadInventoryTableDto> ReadAllInventoryItems(
             [FromQuery] List<string>? inventoryIds = null,
+            [FromQuery] string? businessId = "",
             [FromQuery] int skip = 0,
             [FromQuery] int limit = 10,
             [FromQuery] string? search = ""
         )
         {
-            var userIdClaim = User.Claims.FirstOrDefault(i => i.Type == "id");
-            var userId = userIdClaim.Value;
-
-            List<ReadInventorySimpleDto> inventories = _inventoryRepository.ReadAll(userId);
-            ReadInventoryTableDto inventoryItems = _inventoryItemRepository.ReadAll(userId, search, inventoryIds, skip, limit);
+            List<ReadInventorySimpleDto> inventories = _inventoryRepository.ReadAll(businessId);
+            ReadInventoryTableDto inventoryItems = _inventoryItemRepository.ReadAll(businessId, search, inventoryIds, skip, limit);
             ReadInventoryTableDto tableContent = new ReadInventoryTableDto();
             tableContent.AllInventories = inventories;
             tableContent.AllInventoryItems = inventoryItems.AllInventoryItems;
