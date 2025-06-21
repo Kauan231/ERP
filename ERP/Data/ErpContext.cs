@@ -18,7 +18,7 @@ namespace ERP.Data
         {
             base.OnModelCreating(builder);
             builder.Entity<InventoryItem>()
-                .HasOne(inventoryItem => inventoryItem.Inventories)
+                .HasOne(inventoryItem => inventoryItem.Inventory)
                 .WithMany(inventory => inventory.InventoryItems)
                 .HasForeignKey(inventoryItem => inventoryItem.inventoryId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -49,7 +49,7 @@ namespace ERP.Data
                 .WithMany(p => p.Orders)
                 .UsingEntity(j => j.ToTable("OrderInventoryItems"));
             builder.Entity<InventoryItem>()
-                .HasOne(InventoryItem => InventoryItem.Products)
+                .HasOne(InventoryItem => InventoryItem.Product)
                 .WithMany(product => product.InventoryItems)
                 .HasForeignKey(InventoryItem => InventoryItem.productId);
             builder.Entity<Product>()
@@ -65,6 +65,10 @@ namespace ERP.Data
                 .WithMany(inventory => inventory.Shipments)
                 .HasForeignKey(shipment => shipment.inventoryId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<OrderItem>()
+                .HasOne(orderItem => orderItem.InventoryItem)
+                .WithMany()
+                .HasForeignKey(orderItem => orderItem.inventoryItemId);
         }
 
         public DbSet<Inventory> Inventories { get; set; }

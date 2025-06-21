@@ -10,4 +10,15 @@ namespace ERP.Data.Dtos
         public ICollection<OrderItem>? OrderItems { get; set; }
         public ICollection<Order>? Orders { get; set; }
     }
+
+    public class ShipmentDto
+    {
+        public string Id { get; set; }
+        public string InventoryToId { get; set; }
+        public string InventoryToName { get; set; }
+        public DateTime Date { get; set; }
+        public string Type { get; set; }
+        public string Status { get; set; }
+        public List<ReadOrderItemDto> OrderItems { get; set; }
+    }
 }

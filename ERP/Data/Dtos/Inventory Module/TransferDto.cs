@@ -16,4 +16,10 @@ namespace ERP.Data.Dtos
         [Required]
         public string fromInventoryId { get; set; }
     }
+
+    public class TransferDtoMany
+    {
+        public string toInventoryId { get; set; }
+        public List<TransferDto> transferDtos { get; set; }
+    }
 }

@@ -71,19 +71,19 @@ namespace ERP.Repositories
         public ReadInventoryTableDto ReadAll(string businessId, string productName = "", List<string>? inventoryIds = null, int skip = 0, int limit = 10)
         {
             IQueryable<InventoryItem> query = _context.InventoryItems
-                                                .Include(i => i.Products)
-                                                .Include(i => i.Inventories)
+                                                .Include(i => i.Product)
+                                                .Include(i => i.Inventory)
                                                 .ThenInclude(inv => inv.Businesses)
-                                                .Where(i => i.Inventories.Businesses.Id.Equals(businessId));
+                                                .Where(i => i.Inventory.Businesses.Id.Equals(businessId));
 
             if (!string.IsNullOrEmpty(productName))
             {
-                query = query.Where(invItem => EF.Functions.Like(invItem.Products.Name, $"%{productName}%"));
+                query = query.Where(invItem => EF.Functions.Like(invItem.Product.Name, $"%{productName}%"));
             }
 
             if (inventoryIds != null && inventoryIds.Any())
             {
-                query = query.Where(i => inventoryIds.Contains(i.Inventories.Id));
+                query = query.Where(i => inventoryIds.Contains(i.Inventory.Id));
             }
 
             List<InventoryItem> inventoryItems = query
@@ -98,14 +98,14 @@ namespace ERP.Repositories
                 Amount = item.Amount,
                 Product = new ReadProductDto
                 {
-                    Id = item.Products?.Id,
-                    Name = item.Products?.Name,
-                    Description = item.Products?.Description
+                    Id = item.Product?.Id,
+                    Name = item.Product?.Name,
+                    Description = item.Product?.Description
                 },
                 Inventory = new ReadInventorySimpleDto
                 {
-                    Id = item.Inventories?.Id,
-                    Name = item.Inventories?.Name
+                    Id = item.Inventory?.Id,
+                    Name = item.Inventory?.Name
                 }
             }).ToList();
             ReadInventoryTableDto readInventoryTableDto = new ReadInventoryTableDto();

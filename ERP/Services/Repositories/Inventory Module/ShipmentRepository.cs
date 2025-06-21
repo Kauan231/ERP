@@ -3,6 +3,7 @@ using ERP.Data;
 using ERP.Data.Dtos;
 using ERP.Models;
 using ERP.Models.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERP.Repositories
 {
@@ -80,12 +81,8 @@ namespace ERP.Repositories
             return shipment;
         }
 
-        public Shipment TransferToAnotherInventory(TransferDto transferDto)
+        public Shipment TransferToAnotherInventory(TransferDtoMany transferDtos)
         {
-            InventoryItem inventoryItem = _context.InventoryItems.FirstOrDefault(inventoryItem => inventoryItem.Id == transferDto.Id);
-            if (inventoryItem == null) throw new Exception("Inventory item does not exist");
-            _inventoryItemRepository.SubtractAmount(transferDto.productId, transferDto.fromInventoryId, transferDto.Amount);
-
             var shipment = new Shipment
             {
                 Id = Guid.NewGuid().ToString(),
@@ -93,40 +90,87 @@ namespace ERP.Repositories
                 Status = "PLACED",
                 shipmentDate = DateTime.Now,
                 OrderItems = new List<OrderItem>(),
-                inventoryId = transferDto.toInventoryId
+                inventoryId = transferDtos.toInventoryId
             };
 
             _context.Shipments.Add(shipment);
+
+
+            foreach (TransferDto transferDto in transferDtos.transferDtos)
+            {
+                InventoryItem inventoryItem = _context.InventoryItems.FirstOrDefault(inventoryItem => inventoryItem.Id == transferDto.Id);
+                if (inventoryItem == null) throw new Exception("Inventory item does not exist");
+                _inventoryItemRepository.SubtractAmount(transferDto.productId, transferDto.fromInventoryId, transferDto.Amount);
+
+                var orderItem = new OrderItem
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Amount = transferDto.Amount,
+                    Shipment = shipment
+                };
+
+                var checkInventory = _context.InventoryItems
+                    .SingleOrDefault(inventoryItem => inventoryItem.productId == transferDto.productId && inventoryItem.inventoryId == transferDto.toInventoryId);
+
+                if (checkInventory == null)
+                {
+                    CreateInventoryItemDto newInventoryItemDto = new CreateInventoryItemDto();
+                    newInventoryItemDto.productId = transferDto.productId;
+                    newInventoryItemDto.Amount = transferDto.Amount;
+                    newInventoryItemDto.inventoryId = transferDto.toInventoryId;
+
+                    var createdProduct = _inventoryItemRepository.Create(newInventoryItemDto);
+                    orderItem.productId = transferDto.productId;
+                }
+                else
+                {
+                    checkInventory.Amount += transferDto.Amount;
+                    orderItem.productId = transferDto.productId;
+                }
+
+                orderItem.inventoryItemId = transferDto.Id;
+                shipment.OrderItems.Add(orderItem);
+            }
+
             _context.SaveChanges();
-
-            var orderItem = new OrderItem
-            {
-                Id = Guid.NewGuid().ToString(),
-                Amount = transferDto.Amount,
-                Shipment = shipment
-            };
-
-            var checkInventory = _context.InventoryItems
-                .SingleOrDefault(inventoryItem => inventoryItem.productId == transferDto.productId && inventoryItem.inventoryId == transferDto.toInventoryId);
-
-            if (checkInventory == null)
-            {
-                CreateInventoryItemDto newInventoryItemDto = new CreateInventoryItemDto();
-                newInventoryItemDto.productId = transferDto.productId;
-                newInventoryItemDto.Amount = transferDto.Amount;
-                newInventoryItemDto.inventoryId = transferDto.toInventoryId;
-
-                var createdProduct = _inventoryItemRepository.Create(newInventoryItemDto);
-                orderItem.productId = transferDto.productId;
-            }
-            else
-            {
-                checkInventory.Amount += transferDto.Amount;
-                orderItem.productId = transferDto.productId;
-            }
-
-            shipment.OrderItems.Add(orderItem);
             return shipment;
+        }
+
+        public List<ShipmentDto> Read(string businessId, int skip, int limit)
+        {
+            var query = _context.Shipments
+                .Where(shipment => shipment.Inventory.businessId == businessId)
+                .Skip(skip)
+                .Take(limit)
+                .Select(shipment => new ShipmentDto
+                {
+                    Id = shipment.Id,
+                    InventoryToId = shipment.Inventory.Id,
+                    InventoryToName = shipment.Inventory.Name,
+                    Type = shipment.Type,
+                    Status = shipment.Status,
+                    Date = shipment.shipmentDate,
+                    OrderItems = shipment.OrderItems.Select(orderItem => new ReadOrderItemDto
+                    {
+                        ProductId = orderItem.Product.Id,
+                        ProductName = orderItem.Product.Name,
+                        Amount = orderItem.Amount,
+                        InventoryFromId = orderItem.InventoryItem.Inventory.Id,
+                        InventoryFromName = orderItem.InventoryItem.Inventory.Name
+                    }).ToList()
+                })
+                .ToList();
+
+            return query;
+        }
+
+
+        public int Count(string businessId)
+        {
+            return _context.Shipments
+            .Include(shipment => shipment.Inventory)
+            .Where(shipment => shipment.Inventory.businessId == businessId)
+            .Count();
         }
 
         public ReadShipmentDto Read(string id)

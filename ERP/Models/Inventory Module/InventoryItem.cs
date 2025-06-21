@@ -10,9 +10,9 @@ namespace ERP.Models
         public string Id { get; set; }
         public int Amount { get; set; }
         public string? productId { get; set; }
-        public virtual Product Products { get; set; }
+        public virtual Product Product { get; set; }
         public string? inventoryId { get; set; }
-        public virtual Inventory Inventories { get; set; }
+        public virtual Inventory Inventory { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
     }
 }
