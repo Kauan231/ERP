@@ -84,13 +84,6 @@ namespace ERP.Repositories
 
             if (inventory != null)
             {
-                inventory.businessId = null;
-
-                if (inventory.InventoryItems != null && inventory.InventoryItems.Any())
-                {
-                    _context.InventoryItems.RemoveRange(inventory.InventoryItems);
-                }
-
                 if (inventory.Shipments != null && inventory.Shipments.Any())
                 {
                     foreach (var shipment in inventory.Shipments)
@@ -108,12 +101,25 @@ namespace ERP.Repositories
 
                     _context.Shipments.RemoveRange(inventory.Shipments);
                 }
+                var inventoryItemIds = inventory.InventoryItems.Select(ii => ii.Id).ToList();
+                var directOrderItems = _context.OrderItems
+                    .Where(oi => oi.inventoryItemId != null && inventoryItemIds.Contains(oi.inventoryItemId))
+                    .ToList();
+
+                if (directOrderItems.Any())
+                {
+                    _context.OrderItems.RemoveRange(directOrderItems);
+                }
+
+                if (inventory.InventoryItems != null && inventory.InventoryItems.Any())
+                {
+                    _context.InventoryItems.RemoveRange(inventory.InventoryItems);
+                }
 
                 _context.Inventories.Remove(inventory);
                 _context.SaveChanges();
             }
         }
-
 
 
         public void SaveChanges()

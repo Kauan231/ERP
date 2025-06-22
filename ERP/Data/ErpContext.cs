@@ -68,7 +68,8 @@ namespace ERP.Data
             builder.Entity<OrderItem>()
                 .HasOne(orderItem => orderItem.InventoryItem)
                 .WithMany()
-                .HasForeignKey(orderItem => orderItem.inventoryItemId);
+                .HasForeignKey(orderItem => orderItem.inventoryItemId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Inventory> Inventories { get; set; }
