@@ -15,5 +15,7 @@ namespace ERP.Models
         public virtual ICollection<Order>? Orders { get; set; }
         public string inventoryId { get; set; }
         public virtual Inventory Inventory { get; set; }
+        public string? clientId { get; set; }
+        public virtual Client? Client { get; set; }
     }
 }

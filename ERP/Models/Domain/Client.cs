@@ -11,5 +11,6 @@ namespace ERP.Models.Domain
         public string? businessId { get; set; }
         public virtual Business Business { get; set; }
         public virtual ICollection<Order>? Orders { get; set; }
+        public virtual ICollection<Shipment>? Shipments { get; set; }
     }
 }

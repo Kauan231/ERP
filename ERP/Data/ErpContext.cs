@@ -70,6 +70,11 @@ namespace ERP.Data
                 .WithMany()
                 .HasForeignKey(orderItem => orderItem.inventoryItemId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<Shipment>()
+                .HasOne(shipment => shipment.Client)
+                .WithMany(client => client.Shipments)
+                .HasForeignKey(shipment => shipment.clientId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Inventory> Inventories { get; set; }

@@ -27,6 +27,7 @@ namespace ERP.Repositories
             shipment.Status = "FINISHED";
             shipment.shipmentDate = DateTime.Now;
             shipment.inventoryId = createDto.inventoryId;
+            shipment.clientId = createDto.clientId;
 
             List<OrderItem> orderItems = new List<OrderItem>();
             foreach (CreateOrderItemDto orderItem in createDto.OrderItems)
@@ -151,6 +152,7 @@ namespace ERP.Repositories
                     Type = shipment.Type,
                     Status = shipment.Status,
                     Date = shipment.shipmentDate,
+                    Supplier = shipment.Client.Name,
                     OrderItems = shipment.OrderItems.Select(orderItem => new ReadOrderItemDto
                     {
                         ProductId = orderItem.Product.Id,
