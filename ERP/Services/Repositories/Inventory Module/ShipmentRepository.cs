@@ -142,6 +142,7 @@ namespace ERP.Repositories
                 .Where(shipment => shipment.Inventory.businessId == businessId)
                 .Skip(skip)
                 .Take(limit)
+                .OrderByDescending(shipment => shipment.shipmentDate)
                 .Select(shipment => new ShipmentDto
                 {
                     Id = shipment.Id,
