@@ -57,6 +57,8 @@ namespace ERP.Repositories
             shipment.Type = "SEND";
             shipment.Status = "Finished";
             shipment.shipmentDate = DateTime.Now;
+            shipment.inventoryId = sendDto.inventoryId;
+            shipment.clientId = sendDto.clientId;
 
             List<OrderItem> orderItems = new List<OrderItem>();
             foreach (CreateOrderItemDto orderItem in sendDto.OrderItems)
@@ -67,6 +69,7 @@ namespace ERP.Repositories
                 orderItemToAdd.Amount = orderItem.Amount;
                 orderItemToAdd.productId = orderItem.productId;
                 orderItemToAdd.shipmentId = shipment.Id;
+                orderItemToAdd.inventoryItemId = orderItem.Id;
                 _context.OrderItems.Add(orderItemToAdd);
                 orderItems.Add(orderItemToAdd);
             }
@@ -141,9 +144,9 @@ namespace ERP.Repositories
         {
             var query = _context.Shipments
                 .Where(shipment => shipment.Inventory.businessId == businessId)
+                .OrderByDescending(shipment => shipment.shipmentDate)
                 .Skip(skip)
                 .Take(limit)
-                .OrderByDescending(shipment => shipment.shipmentDate)
                 .Select(shipment => new ShipmentDto
                 {
                     Id = shipment.Id,
@@ -152,7 +155,7 @@ namespace ERP.Repositories
                     Type = shipment.Type,
                     Status = shipment.Status,
                     Date = shipment.shipmentDate,
-                    Supplier = shipment.Client.Name,
+                    Client = shipment.Client.Name,
                     OrderItems = shipment.OrderItems.Select(orderItem => new ReadOrderItemDto
                     {
                         ProductId = orderItem.Product.Id,

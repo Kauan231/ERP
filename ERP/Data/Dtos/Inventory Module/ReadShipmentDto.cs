@@ -19,7 +19,7 @@ namespace ERP.Data.Dtos
         public DateTime Date { get; set; }
         public string Type { get; set; }
         public string Status { get; set; }
-        public string Supplier { get; set; }
+        public string Client { get; set; }
         public List<ReadOrderItemDto> OrderItems { get; set; }
     }
 }
