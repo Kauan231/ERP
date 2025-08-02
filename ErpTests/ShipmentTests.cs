@@ -97,8 +97,12 @@ namespace ErpTests
             _context.Products.Add(createdProduct);
             _context.SaveChanges();
 
+            InventoryItem inventoryItemToCreateInFirstInventory = Mocks.TestInventoryItem(createdProduct.Id, 0, createdInventory.Id);
+            _context.InventoryItems.Add(inventoryItemToCreateInFirstInventory);
+            _context.SaveChanges();
+
             //Act & Assert
-            //Assert.True(CheckAmount(createdProduct, createdInventory.Id, 0));
+            Assert.True(CheckAmount(createdProduct, createdInventory.Id, 0));
 
             CreateOrderItemDto orderItem = new CreateOrderItemDto();
             orderItem.Amount = 10;
@@ -117,11 +121,17 @@ namespace ErpTests
 
             TransferDto transferDto = new TransferDto();
             transferDto.Amount = 10;
+            transferDto.Id = inventoryItemToCreateInFirstInventory.Id;
             transferDto.productId = createdProduct.Id;
             transferDto.fromInventoryId = createdInventory.Id;
             transferDto.toInventoryId = createdInventory1.Id;
 
-            Shipment shipmentTransfer = _shipmentRepository.TransferToAnotherInventory(transferDto);
+            TransferDtoMany transferDtoMany = new TransferDtoMany();
+            transferDtoMany.transferDtos = new List<TransferDto>();
+            transferDtoMany.transferDtos.Add(transferDto);
+            transferDtoMany.toInventoryId = createdInventory1.Id;
+
+            Shipment shipmentTransfer = _shipmentRepository.TransferToAnotherInventory(transferDtoMany);
             _shipmentRepository.SaveChanges();
 
             Assert.True(CheckAmount(createdProduct, createdInventory.Id, 0));

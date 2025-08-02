@@ -39,5 +39,15 @@ namespace ErpTests
             inventory.Name = Guid.NewGuid().ToString();
             return inventory;
         }
+
+        public static InventoryItem TestInventoryItem(string productId, int amount, string inventoryId)
+        {
+            InventoryItem inventoryItem = new InventoryItem();
+            inventoryItem.Id = Guid.NewGuid().ToString();
+            inventoryItem.productId = productId;
+            inventoryItem.inventoryId = inventoryId;
+            inventoryItem.Amount = amount;
+            return inventoryItem;
+        }
     }
 }
